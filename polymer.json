@@ -1,0 +1,24 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/nas-mgmt-app.html",
+  "fragments": [
+    "src/nas-home.html",
+    "src/nas-auth.html",
+    "src/nas-profile.html",
+    "src/nas-offers.html",
+    "src/nas-admin.html",
+    "src/nas-view404.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/*.js"
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  }
+}

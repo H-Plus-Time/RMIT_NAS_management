@@ -1,0 +1,1 @@
+document.querySelector('nas-mgmt-app').apiKey = '{{precious}}';
