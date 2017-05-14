@@ -25,6 +25,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymerfire/firebase-database-script.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-storage-script.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-messaging-script.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/login-fire/login-fire-social.html">
 <link rel="import" href="nas-icons.html">
 
 <dom-module id="nas-mgmt-app">
@@ -50,6 +54,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --paper-icon-button-ink-color: white;
       }
 
+      paper-tabs {
+        --paper-tabs-selection-bar-color: #454545;
+      }
+
+      paper-tab {
+        --paper-tab: {
+          line-height:30px;
+          font-size:1em !important;
+        }
+      }
+      
+      paper-tab[link] a {
+          /* These mixins (from iron-flex-layout) center the link text. */
+          /*@apply(--layout-horizontal);*/
+          /*@apply(--layout-center-center);*/
+          color: inherit;
+          text-decoration: none;
+          padding-left:10px;
+          padding-right:10px;
+          flex: 1 1 auto;
+          /*align-self:center;*/
+          height:50% !important;
+          
+        }
+
       .drawer-list {
         margin: 0 20px;
       }
@@ -66,37 +95,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: black;
         font-weight: bold;
       }
+
+      div[main-title] {
+        /*flex:0 !important;*/
+        margin:auto;
+      }
+      app-header app-toolbar:first-of-type {
+        /*height:100px;*/
+        /*align-items:flex-start;*/
+      }
+      app-toolbar div[menu-container] {
+        position:absolute;
+        right:0;
+        margin:auto;
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        text-transform:uppercase;
+        --paper-tabs-selection-bar-color: var(--app-accent-color);
+      }
+
+      paper-dialog {
+        padding:20px;
+        /*min-width:640px;*/
+        /*min-height:640px;*/
+      }
+
+      paper-dialog-scrollable {
+        display: flex;
+        flex-direction:row;
+        justify-content:center;
+        align-items:center;
+      }
     </style>
 
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}" use-hash-as-path></app-location>
     <app-route
         route="{{route}}"
         pattern="/:page"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
     <firebase-app
-      auth-domain="polymerfire-test.firebaseapp.com"
-      database-url="https://polymerfire-test.firebaseio.com/"
+      name="func-test"
+      auth-domain="func-test-3cf00.firebaseapp.com"
+      database-url="https://func-test-3cf00.firebaseio.com/"
       api-key="[[apiKey]]"
-      storage-bucket="polymerfire-test.appspot.com"
-      messaging-sender-id="544817973908">
+      storage-bucket="func-test-3cf00.appspot.com"
+      messaging-sender-id="556859525284">
     </firebase-app>
-    <firebase-auth id="auth" user="{{user}}" provider="google" on-error="handleError">
-    </firebase-auth>
-    <app-drawer-layout fullbleed>
+    <paper-dialog id="authDialog" with-backdrop center>
+      <paper-dialog-scrollable>
+        <login-fire-social on-signedin="closeDialog"
+          providers="google, facebook, twitter, github, anonymous"
+          app-name="func-test" user="{{user}}" signed-in="{{signedIn}}"
+        >
+        </login-fire-social>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+    <app-drawer-layout fullbleed force-narrow>
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer">
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="home" href="/home">Home</a>
-          <a name="auth" href="/auth">Sign in</a>
+          <a name="home" href="#/home">Home</a>
           <template is="dom-if" if="{{auth.role == 'admin'}}">
-            <a name="admin" href="/admin"></a>
+            <a name="admin" href="#/admin"></a>
           </template>
           <template is="dom-if" if="[[user && role == 'retailer']]">
-            <a name="offers" href="/offers">Offers</a>        
-            <a name="profile" href="/profile">Profile</a>
+            <a name="offers" href="#/offers">Offers</a>        
+            <a name="profile" href="#/profile">Profile</a>
           </template>
+          <paper-button
+            on-tap="authAction">Sign [[authDirection]]</paper-button>
         </iron-selector>
       </app-drawer>
 
@@ -107,6 +177,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <app-toolbar>
             <paper-icon-button icon="nas-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>NAS Management</div>
+            <div menu-container>
+              <paper-tabs hidden$="[[smallScreen]]">
+                <paper-tab link>
+                  <a href="#/profile">Profile</a>
+                </paper-tab>
+                <paper-tab link>
+                  <a href="#/offers">Offers</a>
+                </paper-tab>
+              </paper-tabs>
+              <paper-button hidden$="[[smallScreen]]"
+                on-tap="authAction">Sign [[authDirection]]</paper-button>
+            </div>
           </app-toolbar>
         </app-header>
 
@@ -116,10 +198,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <nas-home name="home"></nas-home>
-          <nas-offers name="offers"></nas-offers>
+          <nas-offers name="offers" app-name="func-test"></nas-offers>
           <nas-admin name="admin"></nas-admin>
-          <nas-profile name="profile"></nas-profile>
-          <nas-auth name="auth"></nas-auth>
+          <nas-profile name="profile" app-name="func-test"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
         </iron-pages>
       </app-header-layout>
@@ -142,8 +223,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           role: {
             value: () => 'nope'
+          },
+          smallScreen: {
+            type: Boolean,
+            value: () => false
+          },
+          authDirection: {
+            type: String,
+            computed: 'computeAuthDirection(signedIn)'
           }
         };
+      }
+
+      computeAuthDirection(signedIn) {
+        return signedIn ? 'out' : 'in';
+      }
+
+      closeDialog(e) {
+        this.shadowRoot.querySelector('paper-dialog').close();
       }
 
       static get observers() {
@@ -181,6 +278,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _showPage404() {
         this.page = 'view404';
+      }
+
+      authAction() {
+        if(this.signedIn) {
+          this.shadowRoot.querySelector('login-fire-social').signOut();
+        } else {
+          this.shadowRoot.getElementById('authDialog').open();
+        }
       }
     }
 

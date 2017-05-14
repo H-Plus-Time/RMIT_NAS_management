@@ -1,0 +1,168 @@
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="offer-card">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                padding:10px;
+                justify-content:space-between;
+            }
+            img {
+                width:50px;
+                height:50px;
+            }
+            div {
+                display:flex;
+                flex: 0 0 auto;
+                align-items:center;
+            }
+            div[info] * {
+                padding:5px;
+            }
+            div[times] * {
+                padding:5px;
+            }
+            .cancel {
+                background:#FF4136;
+                color:white;
+                font-weight:bold;
+            }
+            .before {
+                color:grey;
+            }
+            .after {
+                color:initial;
+            }
+        </style>
+        <div info class$="[[timeStyle]]">
+            <img src$="[[data.img]]">
+            <div>[[data.title]]</div>
+            <div>
+                [[data.description]]
+            </div>
+            <div times>
+                <div>[[startTime]]</div>
+                <div>[[endTime]]</div>
+            </div>
+        </div>
+        <div>
+            <paper-button class="cancel" hidden$="[[passed]]">
+                <iron-icon icon="cancel"></iron-icon>
+                Cancel
+            </paper-button>
+        </div>
+        
+    </template>
+    <script>
+        class OfferCard extends Polymer.Element {
+            static get is() { return 'offer-card'; }
+            static get properties() {
+                return {
+                    data: {
+                        type: Object
+                    },
+                    startTime: {
+                        type: String,
+                        computed: 'renderTime(data.start_time)'
+                    },
+                    endTime: {
+                        type: String,
+                        computed: 'renderTime(data.end_time)'
+                    },
+                    passed: {
+                        type: Boolean,
+                        computed: 'beforeNow(data.end_time)'
+                    },
+                    timeStyle: {
+                        type: String,
+                        computed: 'computeTimeStyle(passed)'
+                    }
+                }
+            }
+            computeTimeStyle(passed) {
+                return passed ? "before" : "after";
+            }
+            beforeNow(time) {
+                return new Date().getTime() / 1000 > time;
+            }
+            renderTime(time) {
+                let opts = {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric',
+                };
+                let d = new Date(time);
+                return new Intl.DateTimeFormat('en-US', opts).format(d*1000);
+            }
+        }
+        window.customElements.define(OfferCard.is, OfferCard);
+    </script>
+</dom-module>
+
+<dom-module id="user-card">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                flex-direction:row;
+                padding:10px;
+                justify-content:space-between;
+                align-items:center;
+            }
+            img {
+                width: 50px;
+                height: 50px;
+            }
+            div[info] {
+                display:flex;
+                align-items:inherit;
+                flex-direction:row;
+            }
+            div[info] * {
+                padding:5px;
+            }
+            .delete {
+                background:#FF4136;
+                color:white;
+                font-weight:bold;
+            }
+        </style>
+        <div info>
+            <img src$="[[data.img]]">
+            <div>[[data.name]]</div>
+            <p>[[data.address]]</p>
+        </div>
+        <div actions hidden$="[[data.status == 'pending']]">
+            <paper-button class="delete" hidden$="[[!active]]">
+                <iron-icon icon="delete"></iron-icon>
+                Delete
+            </paper-button>
+        </div>
+    </template>
+    <script>
+        class UserCard extends Polymer.Element {
+            static get is() { return 'user-card'; }
+            static get properties() {
+                return {
+                    data: {
+                        type: Object
+                    },
+                    active: {
+                        type: Boolean,
+                        computed: 'computeActive(data.status)'
+                    }
+                }
+            }
+            computeActive(status) {
+                if(status == 'active') {
+                    return true;
+                }
+            }
+        }
+        window.customElements.define(UserCard.is, UserCard);
+    </script>
+</dom-module>

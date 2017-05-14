@@ -44,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Tile icon for Windows 8 (144x144 + tile color) -->
     <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
-    <meta name="msapplication-TileColor" content="#3f51b5">
+    <meta name="msapplication-TileColor" content="#e60028">
     <meta name="msapplication-tap-highlight" content="no">
 
     <!-- Load and register pre-caching Service Worker -->
@@ -76,6 +76,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
     <nas-mgmt-app></nas-mgmt-app>
     <script src="/keys.js"></script>
+    <!--polyfills we can wait for-->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en"></script>
     <!-- Built with love using Polymer Starter Kit -->
   </body>
 </html>

@@ -9,29 +9,70 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="nas-cards.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="nas-admin">
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
-
+        display: flex;
+        flex-direction:column;
         padding: 10px;
       }
+      .invite-box {
+        display:flex;
+        flex-direction:row;
+        justify-content:center;
+        align-items:flex-end;
+      }
+      .invite-box > paper-input > paper-icon-button {
+        width:24px;
+        height:24px;
+        padding:0;
+        color:red;
+      }
+      iron-list {
+        flex: 1 1 auto;
+        background:white;
+      }
     </style>
-
-    <div class="card">
-      <div class="circle">3</div>
-      <h1>View Three</h1>
-      <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
+    <div class="invite-box">
+      <paper-input type="email" auto-validate label="Retailer Email">
+        <iron-icon slot="prefix" icon="mail"></iron-icon>
+        <paper-icon-button slot="suffix" icon="clear" tab-index="-1"></paper-icon-button>
+      </paper-input>
+      <paper-icon-button icon="send"></paper-icon-button>
     </div>
+    <iron-list items="[[data]]">
+      <template>
+        <user-card data$="[[item]]"></user-card>
+      </template>
+    </iron-list>
   </template>
 
   <script>
     class NasAdmin extends Polymer.Element {
       static get is() { return 'nas-admin'; }
+      static get properties() {
+        return {
+          data: {
+            type: Array,
+            value: () => {
+              return [
+                {name: 'Coffee Nomad', img: '/rmit.png', address: '124 La Trobe Street, Melbourne 3000', status: 'pending'}
+              ]
+            }
+          }
+        }
+      }
     }
 
     window.customElements.define(NasAdmin.is, NasAdmin);

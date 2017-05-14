@@ -11,27 +11,89 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
+<link rel="import" href="nas-cards.html">
 <dom-module id="nas-offers">
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
+      /*height: 100vh;*/
+      display: flex;
+      flex-direction: column;
+      padding:10px;
+    }
 
-        padding: 10px;
-      }
+    iron-list {
+      flex: 1 1 auto;
+      background:white;
+    }
+    file-fire-drop {
+        height: 100px;
+        width: 100px;
+        border-radius: 4px;
+        --file-fire-dropzone-background-image: url("http://i.imgur.com/ndcWzqn.png");
+    }
+    paper-dialog div {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    paper-dialog h2 {
+      text-align:center;
+    }
     </style>
-
-    <div class="card">
-      <div class="circle">2</div>
-      <h1>View Two</h1>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.</p>
-      <p>Id nam odio natum malorum, tibique copiosae expetenda mel ea.Detracto suavitate repudiandae no eum. Id adhuc minim soluta nam.Id nam odio natum malorum, tibique copiosae expetenda mel ea.</p>
-    </div>
+    <paper-dialog>
+      <h2>Create an Offer</h2>
+      <div>
+        <file-fire-drop app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
+        </file-fire-drop>
+        <paper-input autofocus required auto-validate label="Title"></paper-input>
+        <paper-input required auto-validate char-counter maxlength="140" label="Description"></paper-input>
+        <paper-input required auto-validate type="datetime-local" label="Start Time"></paper-input>
+        <paper-input required auto-validate type="datetime-local" label="End Time"></paper-input>
+        <paper-button dialog-confirm>Submit</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-button on-tap="openDialog">Create an Offer</paper-button>
+    <iron-list items="[[offers]]" as="item">
+      <template>
+        <offer-card data$="[[item]]"></offer-card>
+      </template>
+    </iron-list>
   </template>
 
   <script>
     class NasOffers extends Polymer.Element {
       static get is() { return 'nas-offers'; }
+      static get properties() {
+        return {
+          offers: {
+            type: Array,
+            value: () => {
+              return [
+                {"title": "lorem", img: '/rmit.png', start_time: 1494820800,
+                end_time: 1494824400, description: 'the quick brown fox jumps'},
+                {"title": "lorem", img: '/rmit.png', start_time: 1494700800,
+                end_time: 1494704400, description: 'the quick brown fox jumps'}
+              ]
+            }
+          }
+        }
+      }
+
+      openDialog() {
+        this.shadowRoot.querySelector('paper-dialog').open();
+      }
+
+      ready() {
+        super.ready();
+      }
     }
 
     window.customElements.define(NasOffers.is, NasOffers);

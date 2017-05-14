@@ -1,0 +1,161 @@
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="nas-inputs.html">
+<link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
+<link rel="import" href="nas-cards.html">
+<dom-module id="nas-profile">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                flex-direction: column;
+                align-items:center;
+                padding-top:20px;
+            }
+            file-fire-drop-multi {
+                margin:5px;
+            }
+            file-fire-drop {
+            height: 100px;
+            width: 100px;
+            border-radius: 4px;
+            --file-fire-dropzone-background-image: url("http://i.imgur.com/ndcWzqn.png");
+            }
+            paper-card .logo {
+                width:200px;
+                height:200px;
+
+            }
+            paper-card .card-content > div {
+                display:flex;
+                flex-direction:row;
+            }
+            paper-card .card-content > div[hidden] {
+                display:none !important;
+            }
+            iron-form {
+                display:inherit;
+            }
+            paper-card .card-actions {
+                display:flex;
+                justify-content:flex-end;
+            }
+            paper-card {
+                max-width:66%;
+            }
+            .basics * {
+                padding: 5px;
+            }
+            .basics {
+                display:flex;
+                flex-wrap:wrap;
+            }
+        </style>
+        <paper-card heading="[[profileHeading]]">
+            <div class="card-actions">
+                <paper-button edit on-tap="toggleEdit">Edit</paper-button>
+            </div>
+            <div class="card-content">
+                <div hidden$="[[editing]]">
+                    <iron-image src="[[data.logo]]" class="logo" sizing="contain" style="background:light-grey">
+                    </iron-image>
+                    <div>
+                        <h3>[[data.address]]</h3>
+                        <h3>[[data.introduction]]</h3>
+                        <p>[[data.short_description]]</p>
+                        <p>[[data.long_description]]</p>
+                        <div class="carousel">
+                            <template is="dom-repeat" items="[[data.menu_images]]">
+                                <img src$="[[item.img]]" alt="[[item.alt]]">
+                            </template>
+                        </div>
+                        <div class="carousel">
+                            <template is="dom-repeat" items="[[data.banner_images]]">
+                                <img src$="[[item.img]]" alt="[[item.alt]]">
+                            </template>
+                        </div>
+                        <a hidden$="[[!data.website]]" href$="[[data.website]]">
+                            [[data.website]]
+                        </a>
+                    </div>
+                </div>
+                <div hidden$="[[!editing]]">
+                    <iron-form>
+                        <file-fire-drop class="logo" app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
+                        </file-fire-drop>
+                        <div>
+                            <div class="basics">
+                                <paper-input required auto-validate label='Name *'></paper-input>
+                                <paper-input required auto-validate label='Address *'></paper-input>
+                                <paper-input label='Website (optional)'></paper-input>
+                                <paper-input required auto-validate label='Introduction *'></paper-input>
+                            </div>
+                            <div class="basics">
+                                <paper-input required auto-validate label='Short Description *'></paper-input>
+                                <paper-input required auto-validate label='Long Description *'></paper-input>
+                            </div>
+                            <file-fire-drop-multi app-name="[[appName]]" label="Menu Images"></file-fire-drop-multi>
+                            <file-fire-drop-multi app-name="[[appName]]" label="Carousel Images"></file-fire-drop-multi>
+                            <operating-hours-input></operating-hours-input>
+                            
+                            <paper-button hidden$="[[!editing]]">Save</paper-button>
+                        </div>
+                        
+                    </iron-form>
+                </div>
+            </div>
+            
+        </paper-card>
+        
+    </template>
+    <script>
+        class NasProfile extends Polymer.Element {
+            static get is() { return 'nas-profile'; }
+            static get properties() {
+                return {
+                    editing: {
+                        type: Boolean,
+                        value: () => false
+                    },
+                    profileHeading: {
+                        type: String,
+                        computed: 'computeHeading(data.name)'
+                    },
+                    data: {
+                        type: Object,
+                        value: () => {
+                            return {
+                                name: "RMIT University",
+                                address: "124 La Trobe Street, Melbourne 3000",
+                                logo: "/rmit.png",
+                                introduction: "Hello World",
+                                short_description: "Lorem ipsum dolor amet",
+                                long_description: "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum ",
+                                website: "www.rmit.edu.au"
+                            }
+                        }
+                    }
+                }
+            }
+
+            computeHeading(name) {
+                return name ? name : 'New Retailer';
+            }
+            toggleEdit() {
+                this.editing = !this.editing;
+            }
+        }
+
+    window.customElements.define(NasProfile.is, NasProfile);
+    </script>
+</dom-module>

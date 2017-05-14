@@ -1,0 +1,75 @@
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
+<link rel="import" href="../bower_components/file-fire/file-fire-fetch.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-database-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-storage-script.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-messaging-script.html">
+
+<dom-module id="file-fire-drop-multi">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                flex-direction:column;
+            }
+            div.carousel {
+                display:flex;
+                flex-direction:row;
+                flex-wrap:wrap;
+            }
+            file-fire-drop {
+                height: 100px;
+                width: 100px;
+                border-radius: 4px;
+                --file-fire-dropzone-background-image: url("http://i.imgur.com/ndcWzqn.png");
+            }
+        </style>
+        <label hidden$="[[!label]]">[[label]]</label>
+        <div class="carousel">
+            <template is="dom-repeat" items="[[uploadedImages]]">
+                <h2>[[item.name]]</h2>
+                <img src$="[[item.url]]">
+            </template>
+            <file-fire-drop app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
+            </file-fire-drop>
+        </div>
+    </template>
+    <script>
+        class FileFireDropMulti extends Polymer.Element {
+            static get is() { return 'file-fire-drop-multi'; }
+            static get properties() {
+                return {
+                    max_images: {
+                        type: Number,
+                        reflectToAttribute: true,
+                        value: () => 1
+                    },
+                    uploadedImages: {
+                        type: Array
+                    },
+                    label: {
+                        type: String
+                    }
+                }
+            }
+            _handleUpload(e) {
+                console.log(e);
+                this.uploadedImages = e.detail.urls;
+            }
+            ready() {
+                super.ready();
+                this.addEventListener('upload', this._handleUpload)
+            }
+            
+        }
+
+    window.customElements.define(FileFireDropMulti.is, FileFireDropMulti);
+    </script>
+</dom-module>
