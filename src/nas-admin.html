@@ -45,11 +45,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <div class="invite-box">
-      <paper-input type="email" auto-validate label="Retailer Email">
+      <paper-input type="email" value="{{newRetailerEmail}}" auto-validate label="Retailer Email">
         <iron-icon slot="prefix" icon="mail"></iron-icon>
         <paper-icon-button slot="suffix" icon="clear" tab-index="-1"></paper-icon-button>
       </paper-input>
-      <paper-icon-button icon="send"></paper-icon-button>
+      <paper-icon-button icon="send" on-tap="createRetailer"></paper-icon-button>
     </div>
     <iron-list items="[[data]]">
       <template>
@@ -72,6 +72,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           }
         }
+      }
+
+      createRetailer() {
+        this.dispatchEvent(new CustomEvent('create-retailer',
+          {detail: {email: this.newRetailerEmail}, bubbles: true}));
       }
     }
 

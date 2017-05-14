@@ -64,7 +64,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           font-size:1em !important;
         }
       }
-      
+
       paper-tab[link] a {
           /* These mixins (from iron-flex-layout) center the link text. */
           /*@apply(--layout-horizontal);*/
@@ -137,6 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tail="{{subroute}}"></app-route>
     <firebase-app
       name="func-test"
+      app="{{app}}"
       auth-domain="func-test-3cf00.firebaseapp.com"
       database-url="https://func-test-3cf00.firebaseio.com/"
       api-key="[[apiKey]]"
@@ -199,7 +200,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             role="main">
           <nas-home name="home"></nas-home>
           <nas-offers name="offers" app-name="func-test"></nas-offers>
-          <nas-admin name="admin"></nas-admin>
+          <nas-admin name="admin"
+            on-delete-retailer="deleteRetailer"
+            on-create-retailer="createRetailer"></nas-admin>
           <nas-profile name="profile" app-name="func-test"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
         </iron-pages>
@@ -286,6 +289,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           this.shadowRoot.getElementById('authDialog').open();
         }
+      }
+
+      // the business end 
+      createRetailer(e) {
+        let email = e.detail.email;
+        let db = this.app.database();
+        db.ref('retailers/' + CryptoJS.MD5(email)).set({
+          email: email,
+          status: 'pending'
+        });
+      }
+      deleteRetailer(e) {
+        let email = e.detail.email;
+        let db = this.app.database();
+        db.ref('retailers/' + CryptoJS.MD5(email)).remove();
+      }
+
+      createOffer(e) {
+        let email = 'placeholder';
+        let offerId = 'somerandomnumber';
+        let payload = Object.assign({}, e.detail);
+        payload['offerId'] = offerId;
+        payload.start_time = new Date(e.detail.start_time).getTime() / 1000;
+        payload.end_time = new Date(e.detail.end_time).getTime() / 1000;
+        db.ref(`offers/${CryptoJS.MD5(email)}/${offerId}`).set(payload);
+      }
+
+      deleteOffer(e) {
+        let email = 'placeholder';
+        let offerId = e.detail.offerId;
+        db.ref(`offers/${CryptoJS.MD5(email)}/${e.detail.offerId}`).remove();
       }
     }
 

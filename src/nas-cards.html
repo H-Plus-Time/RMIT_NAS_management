@@ -137,7 +137,7 @@
             <p>[[data.address]]</p>
         </div>
         <div actions hidden$="[[data.status == 'pending']]">
-            <paper-button class="delete" hidden$="[[!active]]">
+            <paper-button class="delete" hidden$="[[!active]]" on-tap="deleteRetailer">
                 <iron-icon icon="delete"></iron-icon>
                 Delete
             </paper-button>
@@ -161,6 +161,10 @@
                 if(status == 'active') {
                     return true;
                 }
+            }
+            deleteRetailer(e) {
+                this.dispatchEvent(new CustomEvent('delete-retailer',
+                    {detail: {email: this.data.email}, bubbles: true}))
             }
         }
         window.customElements.define(UserCard.is, UserCard);

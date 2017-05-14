@@ -53,11 +53,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div>
         <file-fire-drop app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
         </file-fire-drop>
-        <paper-input autofocus required auto-validate label="Title"></paper-input>
-        <paper-input required auto-validate char-counter maxlength="140" label="Description"></paper-input>
-        <paper-input required auto-validate type="datetime-local" label="Start Time"></paper-input>
-        <paper-input required auto-validate type="datetime-local" label="End Time"></paper-input>
-        <paper-button dialog-confirm>Submit</paper-button>
+        <paper-input name="title" autofocus required auto-validate label="Title"></paper-input>
+        <paper-input name="description" required auto-validate char-counter maxlength="140" label="Description"></paper-input>
+        <paper-input name="start_time" required auto-validate type="datetime-local" label="Start Time"></paper-input>
+        <paper-input name="end_time" required auto-validate type="datetime-local" label="End Time"></paper-input>
+        <paper-button dialog-confirm on-tap="createOffer">Submit</paper-button>
       </div>
     </paper-dialog>
     <paper-button on-tap="openDialog">Create an Offer</paper-button>
@@ -89,6 +89,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       openDialog() {
         this.shadowRoot.querySelector('paper-dialog').open();
+      }
+
+      createOffer(e) {
+        let paperDialogRoot = this.shadowRoot.querySelector('paper-dialog');
+        let fields = paperDialogRoot.querySelector('div').children;
+        let formData = Array.from(fields).filter((elem) => {
+          return elem.hasAttribute('name')
+        }).map((elem) => {
+          let obj = {};
+          obj[elem.name] = elem.value;
+          return obj;
+        }).reduce((a,b) => Object.assign(a, b), {});
+        this.dispatchEvent(new CustomEvent('create-offer',
+          {
+            detail: formData, 
+            bubbles: true
+          }))
       }
 
       ready() {
