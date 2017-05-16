@@ -1,9 +1,9 @@
-
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 
-<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../bower_components/iron-image/iron-image.html">
 
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -13,149 +13,281 @@
 <link rel="import" href="nas-inputs.html">
 <link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
 <link rel="import" href="nas-cards.html">
+<link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
+
 <dom-module id="nas-profile">
-    <template>
-        <style>
-            :host {
-                display: flex;
-                flex-direction: column;
-                align-items:center;
-                padding-top:20px;
-            }
-            file-fire-drop-multi {
-                margin:5px;
-            }
-            file-fire-drop {
-            height: 100px;
-            width: 100px;
-            border-radius: 4px;
-            --file-fire-dropzone-background-image: url("http://i.imgur.com/ndcWzqn.png");
-            }
-            paper-card .logo {
-                width:200px;
-                height:200px;
+  <template>
+    <style include="paper-material-styles">
+       :host {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+      }
 
-            }
-            paper-card .card-content > div {
-                display:flex;
-                flex-direction:row;
-            }
-            paper-card .card-content > div[hidden] {
-                display:none !important;
-            }
-            iron-form {
-                display:inherit;
-            }
-            paper-card .card-actions {
-                display:flex;
-                justify-content:flex-end;
-            }
-            paper-card {
-                max-width:66%;
-            }
-            .basics * {
-                padding: 5px;
-            }
-            .basics {
-                display:flex;
-                flex-wrap:wrap;
-            }
-        </style>
-        <paper-card heading="[[profileHeading]]">
-            <div class="card-actions">
-                <paper-button edit on-tap="toggleEdit">Edit</paper-button>
-            </div>
-            <div class="card-content">
-                <div hidden$="[[editing]]">
-                    <iron-image src="[[data.logo]]" class="logo" sizing="contain" style="background:light-grey">
-                    </iron-image>
-                    <div>
-                        <h3>[[data.address]]</h3>
-                        <h3>[[data.introduction]]</h3>
-                        <p>[[data.short_description]]</p>
-                        <p>[[data.long_description]]</p>
-                        <div class="carousel">
-                            <template is="dom-repeat" items="[[data.menu_images]]">
-                                <img src$="[[item.img]]" alt="[[item.alt]]">
-                            </template>
-                        </div>
-                        <div class="carousel">
-                            <template is="dom-repeat" items="[[data.banner_images]]">
-                                <img src$="[[item.img]]" alt="[[item.alt]]">
-                            </template>
-                        </div>
-                        <a hidden$="[[!data.website]]" href$="[[data.website]]">
-                            [[data.website]]
-                        </a>
-                    </div>
-                </div>
-                <div hidden$="[[!editing]]">
-                    <iron-form>
-                        <file-fire-drop class="logo" app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
-                        </file-fire-drop>
-                        <div>
-                            <div class="basics">
-                                <paper-input required auto-validate label='Name *'></paper-input>
-                                <paper-input required auto-validate label='Address *'></paper-input>
-                                <paper-input label='Website (optional)'></paper-input>
-                                <paper-input required auto-validate label='Introduction *'></paper-input>
-                            </div>
-                            <div class="basics">
-                                <paper-input required auto-validate label='Short Description *'></paper-input>
-                                <paper-input required auto-validate label='Long Description *'></paper-input>
-                            </div>
-                            <file-fire-drop-multi app-name="[[appName]]" label="Menu Images"></file-fire-drop-multi>
-                            <file-fire-drop-multi app-name="[[appName]]" label="Carousel Images"></file-fire-drop-multi>
-                            <operating-hours-input></operating-hours-input>
-                            
-                            <paper-button hidden$="[[!editing]]">Save</paper-button>
-                        </div>
-                        
-                    </iron-form>
-                </div>
-            </div>
-            
-        </paper-card>
-        
-    </template>
-    <script>
-        class NasProfile extends Polymer.Element {
-            static get is() { return 'nas-profile'; }
-            static get properties() {
-                return {
-                    editing: {
-                        type: Boolean,
-                        value: () => false
-                    },
-                    profileHeading: {
-                        type: String,
-                        computed: 'computeHeading(data.name)'
-                    },
-                    data: {
-                        type: Object,
-                        value: () => {
-                            return {
-                                name: "RMIT University",
-                                address: "124 La Trobe Street, Melbourne 3000",
-                                logo: "/rmit.png",
-                                introduction: "Hello World",
-                                short_description: "Lorem ipsum dolor amet",
-                                long_description: "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum ",
-                                website: "www.rmit.edu.au"
-                            }
-                        }
-                    }
-                }
-            }
+      file-fire-drop-multi {
+        margin: 5px;
+      }
 
-            computeHeading(name) {
-                return name ? name : 'New Retailer';
+      file-fire-drop {
+        height: 100px;
+        width: 100px;
+        border-radius: 4px;
+        --file-fire-dropzone-background-image: url("http://i.imgur.com/ndcWzqn.png");
+      }
+
+      .logo {
+        width: 200px;
+        height: 200px;
+        flex: 0 0 auto;
+      }
+
+      paper-card .card-content>div {
+        display: flex;
+        flex-direction: row;
+      }
+
+      paper-card .card-content>div[hidden] {
+        display: none !important;
+      }
+
+      paper-card .card-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      paper-card {
+        width: 66%;
+      }
+
+      .basics * {
+        padding: 5px;
+      }
+
+      .basics {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .menu {
+        width: 150px;
+        height: 212px;
+        @apply --paper-material-elevation-1;
+      }
+
+      .banner {
+        width: 150px;
+        height: 100px;
+        @apply --paper-material-elevation-1;
+      }
+
+      .times-output {
+        display: flex;
+      }
+
+      .times-output>* {
+        padding: 5px;
+      }
+    </style>
+    <paper-card heading="Profile - [[profileHeading]]">
+      <div class="card-actions">
+        <paper-button edit on-tap="toggleEdit">Edit</paper-button>
+      </div>
+      <div class="card-content">
+        <div hidden$="[[editing]]" style="display:flex;flex-direction:column">
+          <div style="display:flex;flex-direction:row">
+            <iron-image src="[[data.logo]]" class="logo"
+              sizing="contain" style="background:light-grey">
+            </iron-image>
+            <div class="basics">
+              <div>
+                <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[data.address]]</i>
+                <br>
+                <iron-icon icon="av:web"></iron-icon>
+                <a hidden$="[[!data.website]]" href$="[[data.website]]">
+                    [[data.website]]
+                </a>
+                <div><i>Introduction</i>: [[data.introduction]]</div>
+                <p><i>Short Description: </i>[[data.short_description]]</p>
+              </div>
+            </div>
+          </div>
+          <p><i>Long Description: </i>[[data.long_description]]</p>
+          <h3>Operating Hours</h3>
+          <div class="times-output">
+            <template is="dom-repeat" items="[[data.times]]">
+              <time-range-output name="[[item.name]]"
+                start="[[item.start_time]]"
+                end="[[item.end_time]]"></time-range-output>
+            </template>
+          </div>
+          <div hidden$="[[!data.banner_images]]">
+            <h3>Banner Images</h3>
+            <template id="menus" is="dom-repeat" items="[[data.banner_images]]">
+              <iron-image class="banner" sizing="contain"
+                src$="[[item.img]]" alt="[[item.alt]]"></iron-image>
+            </template>
+          </div>
+          <div hidden$="[[!data.menu_images]]">
+            <h3>Menu Images</h3>
+            <template id="banners" is="dom-repeat" items="[[data.menu_images]]">
+              <iron-image class="menu" sizing="contain"
+                src$="[[item.img]]" alt="[[item.alt]]"></iron-image>
+            </template>
+          </div>
+        </div>
+        <div id="edit" hidden$="[[!editing]]" style="display:flex;flex-direction:column">
+          <div id="basic-section" style="display:flex;flex-direction:row">
+            <file-fire-drop class="logo" app-name="[[appName]]"
+              path="/dropdemo/click" src-file over-write
+              max-dimension="200" resize-height="16"
+              resize-width="16" progress="{{progress}}"
+              placeholder="{{base64}}" files="{{images}}"
+              always-show
+            >
+            </file-fire-drop>
+            <div>
+              <div class="basics">
+                <paper-input name="name"
+                  required auto-validate
+                  label='Name *'
+                ></paper-input>
+                <paper-input name="address"
+                  required auto-validate
+                  label='Address *'
+                ></paper-input>
+                <paper-input name="website"
+                  label='Website (optional)'
+                ></paper-input>
+                <paper-input name="introduction"
+                  required auto-validate
+                  label='Introduction *'
+                ></paper-input>
+              </div>
+              <div class="basics">
+                <paper-input name="short_description"
+                  required auto-validate
+                  label='Short Description *'
+                ></paper-input>
+                <paper-input name="long_description"
+                  required auto-validate
+                  label='Long Description *'
+                ></paper-input>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <file-fire-drop-multi app-name="[[appName]]" label="Menu Images"></file-fire-drop-multi>
+            <file-fire-drop-multi app-name="[[appName]]" label="Carousel Images"></file-fire-drop-multi>
+            <h3>Operating Hours</h3>
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;">
+              <template is="dom-repeat" items="[[weekdays]]">
+                <div hidden$="[[item.disabled]]" style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                  <h3>[[item.name]]</h3>
+                  <paper-icon-button icon="delete" day="[[item.name]]" on-tap="deleteDay" style="position:absolute;top:0;right:0"></paper-icon-button>
+                  <time-range-input style="flex-direction:column" name="[[item.name]]"></time-range-input>
+                </div>
+              </template>
+            </div>
+            <paper-button on-tap="submitProfileChanges" hidden$="[[!editing]]">Save</paper-button>
+          </div>
+        </div>
+      </div>
+
+    </paper-card>
+
+  </template>
+  <script>
+    class NasProfile extends Polymer.Element {
+      static get is() {
+        return 'nas-profile';
+      }
+      static get properties() {
+        return {
+          editing: {
+            type: Boolean,
+            value: () => false
+          },
+          profileHeading: {
+            type: String,
+            computed: 'computeHeading(data.name)'
+          },
+          weekdays: {
+            type: Array,
+            value: () => {
+              return [
+                {name: 'MON'}, {name: 'TUES'}, {name: 'WED'},
+                {name: 'THURS'}, {name: 'FRI'}, {name: 'SAT'},
+                {name: 'SUN'}
+              ]
             }
-            toggleEdit() {
-                this.editing = !this.editing;
+          },
+          data: {
+            type: Object,
+            value: () => {
+              return {
+                name: "RMIT University",
+                address: "124 La Trobe Street, Melbourne 3000",
+                logo: "/rmit.png",
+                introduction: "Hello World",
+                short_description: "Lorem ipsum dolor amet",
+                long_description: "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum ",
+                website: "www.rmit.edu.au"
+              }
             }
+          }
         }
+      }
+      deleteDay(e) {
+        let day = e.target.day;
+        let elem = this.shadowRoot.querySelector(`time-range-input[name="${day}"]`);
+        elem.rawStartTime = "";
+        elem.rawEndTime = "";
+      }
+      computeHeading(name) {
+        return name ? name : 'New Retailer';
+      }
+      toggleEdit() {
+        this.editing = !this.editing;
+        Object.keys(this.data).forEach((k) => {
+          if (typeof this.data[k] != String) {
+            return;
+          }
+          this.shadowRoot.getElementById('edit').querySelector(`[name="${k}"]`).value = this.data[k];
+        })
+      }
+      submitProfileChanges() {
+        let formRoot = this.shadowRoot.getElementById('edit');
+        let fields = Array.from(formRoot.querySelectorAll('div > div.basics')).reduce((a, b) => {
+          return a.concat(Array.from(b.children))
+        }, []);
+        let formData = fields.filter((elem) => {
+          return elem.hasAttribute('name')
+        }).map((elem) => {
+          let obj = {};
+          obj[elem.name] = elem.value;
+          return obj;
+        }).reduce((a, b) => Object.assign(a, b), {});
+        // TODO: grab all the images and special inputs
+        let timeRangeData = Array.from(formRoot.querySelectorAll('time-range-input')).map((elem) => {
+          return {
+            start_time: elem.startTime,
+            end_time: elem.endTime,
+            name: elem.name
+          };
+        }).filter((rangeObj) => {
+          return rangeObj.start_time && rangeObj.end_time && rangeObj.name;
+        });
+        formData['times'] = timeRangeData;
+        this.dispatchEvent(new CustomEvent('update-profile', {
+          detail: formData,
+          bubbles: true,
+          composed: true
+        }));
+        this.toggleEdit();
+      }
+    }
 
     window.customElements.define(NasProfile.is, NasProfile);
-    </script>
+  </script>
 </dom-module>

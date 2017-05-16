@@ -29,7 +29,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/login-fire/login-fire-social.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
 <link rel="import" href="nas-icons.html">
+<link rel="import" href="helper-import.html">
 
 <dom-module id="nas-mgmt-app">
   <template>
@@ -144,6 +147,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       storage-bucket="func-test-3cf00.appspot.com"
       messaging-sender-id="556859525284">
     </firebase-app>
+    <firebase-query id="offer-query"
+      app-name="func-test"
+      path="offers/[[hashedEmail]]"
+      data="{{offerData}}">
+    </firebase-query>
+    <firebase-query id="retailer-query"
+      app-name="func-test"
+      path="users"
+      data="{{retailersData}}">
+    </firebase-query>
+    <firebase-document id="profile-document"
+      app-name="func-test"
+      path="users/[[hashedEmail]]/profile"
+      data="{{profileData}}">
+    </firebase-document>
     <paper-dialog id="authDialog" with-backdrop center>
       <paper-dialog-scrollable>
         <login-fire-social on-signedin="closeDialog"
@@ -162,7 +180,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <template is="dom-if" if="{{auth.role == 'admin'}}">
             <a name="admin" href="#/admin"></a>
           </template>
-          <template is="dom-if" if="[[user && role == 'retailer']]">
+          <template is="dom-if" if="[[signedIn]]">
             <a name="offers" href="#/offers">Offers</a>        
             <a name="profile" href="#/profile">Profile</a>
           </template>
@@ -180,12 +198,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div main-title>NAS Management</div>
             <div menu-container>
               <paper-tabs hidden$="[[smallScreen]]">
-                <paper-tab link>
-                  <a href="#/profile">Profile</a>
-                </paper-tab>
-                <paper-tab link>
-                  <a href="#/offers">Offers</a>
-                </paper-tab>
+                <template is="dom-if" if="[[isAdmin]]">
+                  <paper-tab link>
+                    <a href="#/admin">Admin</a>
+                  </paper-tab>
+                </template>
+                <template is="dom-if" if="[[isRetailer]]">
+                  <paper-tab link>
+                    <a href="#/profile">Profile</a>
+                  </paper-tab>
+                  <paper-tab link>
+                    <a href="#/offers">Offers</a>
+                  </paper-tab>
+                </template>
               </paper-tabs>
               <paper-button hidden$="[[smallScreen]]"
                 on-tap="authAction">Sign [[authDirection]]</paper-button>
@@ -199,11 +224,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <nas-home name="home"></nas-home>
-          <nas-offers name="offers" app-name="func-test"></nas-offers>
+          <nas-offers name="offers" app-name="func-test"
+            offers="[[offerData]]"
+            on-delete-offer="deleteOffer"
+            on-create-offer="createOffer"></nas-offers>
           <nas-admin name="admin"
+            data="[[retailersData]]"
             on-delete-retailer="deleteRetailer"
             on-create-retailer="createRetailer"></nas-admin>
-          <nas-profile name="profile" app-name="func-test"></nas-profile>
+          <nas-profile name="profile"
+            data="[[profileData]]"
+            on-update-profile="updateProfile"
+            app-name="func-test"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
         </iron-pages>
       </app-header-layout>
@@ -224,9 +256,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           user: {
             value: () => false
           },
-          role: {
-            value: () => 'nope'
-          },
           smallScreen: {
             type: Boolean,
             value: () => false
@@ -234,16 +263,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           authDirection: {
             type: String,
             computed: 'computeAuthDirection(signedIn)'
+          },
+          hashedEmail: {
+            type: String,
+            computed: 'computeEmailHash(user.email)'
+          },
+          isRetailer: {
+            type: Boolean,
+            computed: 'computeIsRetailer(signedIn)'
+          },
+          isAdmin: {
+            type: Boolean,
+            value: () => false
           }
         };
       }
 
+      computeIsRetailer(signedIn) {
+        return signedIn;
+      }
       computeAuthDirection(signedIn) {
         return signedIn ? 'out' : 'in';
       }
 
       closeDialog(e) {
-        this.shadowRoot.querySelector('paper-dialog').close();
+        this.shadowRoot.querySelector('paper-dialog').close();        
       }
 
       static get observers() {
@@ -262,6 +306,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If no page was found in the route data, page will be an empty string.
         // Deault to 'home' in that case.
         this.page = page || 'home';
+        if(this.page == 'edit') {
+          
+        }
 
         // Close a non-persistent drawer when the page & route are changed.
         if (!this.$.drawer.persistent) {
@@ -291,35 +338,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
-      // the business end 
+      computeEmailHash(email) {
+        console.log(email);
+        return CryptoJS.SHA256(email).toString();
+      }
+
+      async testFunc() {
+        console.log("Hola")
+      }
+
+      // firebase crud handlers
       createRetailer(e) {
         let email = e.detail.email;
         let db = this.app.database();
-        db.ref('retailers/' + CryptoJS.MD5(email)).set({
+        db.ref('users/' + CryptoJS.SHA256(email)).set({
           email: email,
-          status: 'pending'
+          status: 'pending',
+          role: 'retailer',
+          time_created: new Date().getTime() / 1000
         });
       }
       deleteRetailer(e) {
         let email = e.detail.email;
         let db = this.app.database();
-        db.ref('retailers/' + CryptoJS.MD5(email)).remove();
+        // NB: the email in question isn't the user's (in this case an admin),
+        // so we can't rely on the hashedEmail property.
+        db.ref('users/' + CryptoJS.SHA256(email)).remove();
       }
 
       createOffer(e) {
-        let email = 'placeholder';
+        let email = this.user.email;
         let offerId = 'somerandomnumber';
         let payload = Object.assign({}, e.detail);
         payload['offerId'] = offerId;
         payload.start_time = new Date(e.detail.start_time).getTime() / 1000;
         payload.end_time = new Date(e.detail.end_time).getTime() / 1000;
-        db.ref(`offers/${CryptoJS.MD5(email)}/${offerId}`).set(payload);
+        let db = this.shadowRoot.getElementById('offer-query').db;
+        db.ref(`offers/${this.hashedEmail}`).push(payload);
       }
 
       deleteOffer(e) {
-        let email = 'placeholder';
-        let offerId = e.detail.offerId;
-        db.ref(`offers/${CryptoJS.MD5(email)}/${e.detail.offerId}`).remove();
+        let offerId = e.detail;
+        let db = this.shadowRoot.getElementById('offer-query').db;
+        db.ref(`offers/${this.hashedEmail}`).child(offerId).remove();
+      }
+      updateProfile(e) {
+        let payload = e.detail;
+        let db = this.app.database();
+        db.ref(`users/${this.hashedEmail}/profile`).update(payload);
+        db.ref(`users/${this.hashedEmail}/status`).set('active');
+        // not the only thing we have to do. Need to upload images to storage.
+        // TODO
+      }
+
+      ready() {
+        super.ready();
+        let q = this.shadowRoot.getElementById('retailer-query');
+        q.equalTo = "retailer";
+        q.orderByChild = 'role';
       }
     }
 

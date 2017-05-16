@@ -15,13 +15,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
+
 
 <link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
 <link rel="import" href="nas-cards.html">
 <dom-module id="nas-offers">
   <template>
-    <style include="shared-styles">
+    <style include="shared-styles paper-material-styles">
       :host {
       /*height: 100vh;*/
       display: flex;
@@ -29,8 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding:10px;
     }
 
-    iron-list {
-      flex: 1 1 auto;
+    offer-card {
       background:white;
     }
     file-fire-drop {
@@ -47,6 +47,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-dialog h2 {
       text-align:center;
     }
+    #offersContainer {
+      @apply --paper-material-elevation-2;
+    }
+    :host > paper-button {
+      margin:auto;
+    }
     </style>
     <paper-dialog>
       <h2>Create an Offer</h2>
@@ -61,11 +67,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
     <paper-button on-tap="openDialog">Create an Offer</paper-button>
-    <iron-list items="[[offers]]" as="item">
-      <template>
-        <offer-card data$="[[item]]"></offer-card>
+    <div id="offersContainer">
+      <template is="dom-repeat" items="[[offers]]">
+          <offer-card data="[[item]]"></offer-card>
       </template>
-    </iron-list>
+    </div>
   </template>
 
   <script>
@@ -88,7 +94,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       openDialog() {
-        this.shadowRoot.querySelector('paper-dialog').open();
+        let dialog = this.shadowRoot.querySelector('paper-dialog');
+        dialog.open();
+        // reset all 
+        dialog.querySelector('div paper-input[name="title"]').value = '';
+        dialog.querySelector('div paper-input[name="description"]').value = '';
+        // set some reasonable defaults
+        let now_basic = new Date();
+        let now = fecha.format(now_basic, 'YYYY-MM-DDThh:mm')
+        let plus_one_day = new Date(now_basic.getTime() + 24*1000*3600);
+        let pod_fmt = fecha.format(plus_one_day, 'YYYY-MM-DDThh:mm');
+        console.log(now);
+        console.log(pod_fmt);
+        dialog.querySelector('div paper-input[name="start_time"]').value = now;
+        dialog.querySelector('div paper-input[name="end_time"]').value = pod_fmt;
       }
 
       createOffer(e) {

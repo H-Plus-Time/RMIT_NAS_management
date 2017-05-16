@@ -3,30 +3,26 @@
 
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
-
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
 <dom-module id="offer-card">
     <template>
         <style>
             :host {
                 display: flex;
+                flex: 1 1 auto;
+                flex-direction:row;
                 padding:10px;
-                justify-content:space-between;
+                align-items:center;
             }
-            img {
+            :host > * {
+                padding:10px;
+            }
+            iron-image {
                 width:50px;
                 height:50px;
             }
-            div {
-                display:flex;
-                flex: 0 0 auto;
-                align-items:center;
-            }
-            div[info] * {
-                padding:5px;
-            }
-            div[times] * {
-                padding:5px;
-            }
+
             .cancel {
                 background:#FF4136;
                 color:white;
@@ -38,24 +34,22 @@
             .after {
                 color:initial;
             }
+            .image_block {
+                /*width:150px !important;*/
+                border-right:#000000 1px solid;
+            }
         </style>
-        <div info class$="[[timeStyle]]">
-            <img src$="[[data.img]]">
-            <div>[[data.title]]</div>
-            <div>
-                [[data.description]]
-            </div>
-            <div times>
-                <div>[[startTime]]</div>
-                <div>[[endTime]]</div>
-            </div>
+        <div class="image_block">
+            <iron-image sizing="contain" src$="[[data.img]]"></iron-image>
         </div>
-        <div>
-            <paper-button class="cancel" hidden$="[[passed]]">
-                <iron-icon icon="cancel"></iron-icon>
-                Cancel
-            </paper-button>
-        </div>
+        <h2 style="width:15%;flex: 0 0 auto">[[data.title]]</h2>
+        <p style="flex-grow:3">[[data.description]]</p>
+        <div style="width:15%;flex: 0 0 auto;" class$="[[timeStyle]]">[[startTime]]</div>
+        <div style="width:15%;flex: 0 0 auto;" class$="[[timeStyle]]">[[endTime]]</div>
+        <paper-button style="flex-shrink:0" class="cancel" hidden$="[[passed]]" on-tap="deleteOffer">
+            <iron-icon icon="cancel"></iron-icon>
+            Cancel
+        </paper-button>
         
     </template>
     <script>
@@ -98,6 +92,11 @@
                 let d = new Date(time);
                 return new Intl.DateTimeFormat('en-US', opts).format(d*1000);
             }
+            deleteOffer() {
+                console.log(this.data['$key'])
+                this.dispatchEvent(new CustomEvent('delete-offer',
+                    {detail: this.data['$key'], bubbles: true, composed: true}));
+            }
         }
         window.customElements.define(OfferCard.is, OfferCard);
     </script>
@@ -108,9 +107,9 @@
         <style>
             :host {
                 display: flex;
+                flex: 1 1 auto;
                 flex-direction:row;
                 padding:10px;
-                justify-content:space-between;
                 align-items:center;
             }
             img {
@@ -135,6 +134,8 @@
             <img src$="[[data.img]]">
             <div>[[data.name]]</div>
             <p>[[data.address]]</p>
+            <a href$="[[data.email]]">[[data.email]]</a>
+            <p>[[data.status]]</p>
         </div>
         <div actions hidden$="[[data.status == 'pending']]">
             <paper-button class="delete" hidden$="[[!active]]" on-tap="deleteRetailer">
@@ -161,12 +162,33 @@
                 if(status == 'active') {
                     return true;
                 }
+                return false;
             }
             deleteRetailer(e) {
                 this.dispatchEvent(new CustomEvent('delete-retailer',
-                    {detail: {email: this.data.email}, bubbles: true}))
+                    {detail: {email: this.data.email}, bubbles: true, composed: true}))
             }
         }
         window.customElements.define(UserCard.is, UserCard);
+    </script>
+</dom-module>
+<dom-module id="time-range-output">
+    <template>
+        <style>
+
+        </style>
+        <label>[[name]]</label>
+        <div>[[start]] - [[end]]</div>
+    </template>
+    <script>
+        class TimeRangeOutput extends Polymer.Element {
+            static get is() { return 'time-range-output'; }
+            static get properties() {
+                return {
+
+                }
+            }
+        }
+        window.customElements.define(TimeRangeOutput.is, TimeRangeOutput);
     </script>
 </dom-module>
