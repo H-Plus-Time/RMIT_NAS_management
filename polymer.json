@@ -3,7 +3,6 @@
   "shell": "src/nas-mgmt-app.html",
   "fragments": [
     "src/nas-home.html",
-    "src/nas-auth.html",
     "src/nas-profile.html",
     "src/nas-offers.html",
     "src/nas-admin.html",
@@ -16,9 +15,18 @@
   ],
   "extraDependencies": [
     "manifest.json",
+    "keys.js",
+    "bower_components/login-fire/*.json",
     "bower_components/webcomponentsjs/*.js"
   ],
   "lint": {
     "rules": ["polymer-2"]
-  }
+  },
+  "builds": [{
+    "service-worker": true,
+    "bundle": true,
+    "js": {"minify": true},
+    "css": {"minify": true},
+    "html": {"minify": true}
+  }]
 }

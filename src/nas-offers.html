@@ -60,6 +60,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <file-fire-drop app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
         </file-fire-drop>
         <paper-input name="title" autofocus required auto-validate label="Title"></paper-input>
+        <paper-input name="tagline" required auto-validate char-counter maxlength="25" label="Tagline"></paper-input>
         <paper-input name="description" required auto-validate char-counter maxlength="140" label="Description"></paper-input>
         <paper-input name="start_time" required auto-validate type="datetime-local" label="Start Time"></paper-input>
         <paper-input name="end_time" required auto-validate type="datetime-local" label="End Time"></paper-input>
@@ -68,7 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-dialog>
     <paper-button on-tap="openDialog">Create an Offer</paper-button>
     <div id="offersContainer">
-      <template is="dom-repeat" items="[[offers]]">
+      <template is="dom-repeat" items="[[offers]]" sort="compareOfferTimes">
           <offer-card data="[[item]]"></offer-card>
       </template>
     </div>
@@ -91,6 +92,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           }
         }
+      }
+
+      compareOfferTimes(a,b) {
+        return  a.start_time < b.start_time;
       }
 
       openDialog() {

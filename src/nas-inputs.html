@@ -14,7 +14,6 @@
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
-<script src="../bower_components/time-js/time.js"></script>
 <dom-module id="file-fire-drop-multi">
     <template>
         <style>
@@ -94,26 +93,14 @@
                 padding:3px;
             }
             paper-input {
-                width:80px;
-            }
-            paper-listbox {
-                display:flex;
-                flex-direction:row;
+                width:100px;
             }
         </style>
         <div>
-            <paper-input type="time" label="Start" value="{{rawStartTime}}"></paper-input>
-            <paper-radio-group selected="{{rawStartPeriod}}">
-                <paper-radio-button name="AM">AM</paper-radio-button>
-                <paper-radio-button name="PM">PM</paper-radio-button>
-            </paper-radio-group>
+            <paper-input type="time" label="Start" value="{{startTime}}"></paper-input>
         </div>
         <div>
-            <paper-input type="time" label="End" value="{{rawEndTime}}"></paper-input>
-            <paper-radio-group selected="{{rawEndPeriod}}">
-                <paper-radio-button name="AM">AM</paper-radio-button>
-                <paper-radio-button name="PM">PM</paper-radio-button>
-            </paper-radio-group>
+            <paper-input type="time" label="End" value="{{endTime}}"></paper-input>
         </div>
     </template>
     <script>
@@ -121,66 +108,19 @@
             static get is () { return 'time-range-input'; }
             static get properties() {
                 return {
-                    militaryTime: {
-                        type: Boolean,
-                        value: () => {
-                            let lString = (new Date(3600*4*1000).toLocaleString());
-                            if(lString.indexOf('AM') != -1 || lString.indexOf('PM') != -1) {
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        }
-                    },
-                    rawStartPeriod: {
-                        type: String,
-                        value: () => "AM"
-                    },
-                    rawEndPeriod: {
-                        type: String,
-                        value: () => "PM"
-                    },
-                    rawStartTime: {
-                        type: String,
-                        value: () => "09:00",
-                        notify: true
-                    },
-                    rawEndTime: {
-                        type: String,
-                        value: () => "05:00",
-                        notify: true
-                    },
                     startTime: {
                         type: String,
                         reflectToAttribute: true,
-                        notify: true,
-                        computed: 'computeTime(rawStartTime, rawStartPeriod)'
+                        notify: true
                     },
                     endTime: {
                         type: String,
                         reflectToAttribute: true,
-                        notify: true,
-                        computed: 'computeTime(rawEndTime, rawEndPeriod)'
+                        notify: true
                     },
                     name: {
                         type: String,
                         reflectToAttribute: true
-                    }
-                }
-            }
-            computeTime(nativeTime, period) {
-                if(this.militaryTime) {
-                    // ignore period
-                    return nativeTime;
-                } else {
-                    if(period == 'AM') {
-                        return nativeTime;
-                    } else {
-                        // need to actually parse
-                        var t = Time(nativeTime);
-                        var paddedHours = (t.hours()+12).toString().padStart(2, '0');
-                        var paddedMins = (t.minutes()+12).toString().padStart(2, '0');
-                        return `${paddedHours}:${paddedMins}`
                     }
                 }
             }

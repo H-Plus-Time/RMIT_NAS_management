@@ -16,5 +16,9 @@ module.exports = {
     '/manifest.json',
     '/bower_components/webcomponentsjs/*',
   ],
+  runTimeCaching: [{
+    urlPattern: /\/bower_components\//,
+    handler: 'fastest'
+  }],
   navigateFallback: 'index.html',
 };

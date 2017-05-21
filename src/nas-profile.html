@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-icons/av-icons.html">
@@ -71,13 +72,13 @@
 
       .menu {
         width: 150px;
-        height: 212px;
+        height: 207px;
         @apply --paper-material-elevation-1;
       }
 
       .banner {
-        width: 150px;
-        height: 100px;
+        width: 207px;
+        height: 110px;
         @apply --paper-material-elevation-1;
       }
 
@@ -87,6 +88,10 @@
 
       .times-output>* {
         padding: 5px;
+      }
+      paper-textarea {
+        min-width:300px;
+        max-width:450px;
       }
     </style>
     <paper-card heading="Profile - [[profileHeading]]">
@@ -101,38 +106,33 @@
             </iron-image>
             <div class="basics">
               <div>
-                <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[data.address]]</i>
+                <h3 style="display:inline-block;">[[data.name]]</h3>,<i>Level [[data.level]], Building [[data.building]], [[data.address]]</i>
                 <br>
                 <iron-icon icon="av:web"></iron-icon>
                 <a hidden$="[[!data.website]]" href$="[[data.website]]">
                     [[data.website]]
                 </a>
-                <div><i>Introduction</i>: [[data.introduction]]</div>
-                <p><i>Short Description: </i>[[data.short_description]]</p>
+                <div>[[data.tagline]]</div>
+                <p><i>Detail: </i>[[data.detail]]</p>
               </div>
             </div>
           </div>
-          <p><i>Long Description: </i>[[data.long_description]]</p>
           <h3>Operating Hours</h3>
           <div class="times-output">
-            <template is="dom-repeat" items="[[data.times]]">
-              <time-range-output name="[[item.name]]"
-                start="[[item.start_time]]"
-                end="[[item.end_time]]"></time-range-output>
-            </template>
+            <multi-time-range-output times="[[data.operating_hours]]"></multi-time-range-output>
           </div>
-          <div hidden$="[[!data.banner_images]]">
+          <div hidden$="[[!data.banners]]">
             <h3>Banner Images</h3>
-            <template id="menus" is="dom-repeat" items="[[data.banner_images]]">
-              <iron-image class="banner" sizing="contain"
-                src$="[[item.img]]" alt="[[item.alt]]"></iron-image>
+            <template id="menus" is="dom-repeat" items="[[data.banners]]">
+              <iron-image class="banner" sizing="contain" preload
+                src="[[item.src]]" alt="[[item.alt]]"></iron-image>
             </template>
           </div>
-          <div hidden$="[[!data.menu_images]]">
+          <div hidden$="[[!data.menus]]">
             <h3>Menu Images</h3>
-            <template id="banners" is="dom-repeat" items="[[data.menu_images]]">
-              <iron-image class="menu" sizing="contain"
-                src$="[[item.img]]" alt="[[item.alt]]"></iron-image>
+            <template id="banners" is="dom-repeat" items="[[data.menus]]">
+              <iron-image class="menu" sizing="contain" preload
+                src="[[item.src]]" alt="[[item.alt]]"></iron-image>
             </template>
           </div>
         </div>
@@ -152,6 +152,14 @@
                   required auto-validate
                   label='Name *'
                 ></paper-input>
+                <paper-input name="building"
+                  required auto-validate type="number"
+                  label="Building *">
+                </paper-input>
+                <paper-input name="level"
+                  required auto-validate type="number"
+                  label="Level *">
+                </paper-input>
                 <paper-input name="address"
                   required auto-validate
                   label='Address *'
@@ -159,20 +167,17 @@
                 <paper-input name="website"
                   label='Website (optional)'
                 ></paper-input>
-                <paper-input name="introduction"
+                <paper-input name="tagline" char-counter maxlength="25"
                   required auto-validate
-                  label='Introduction *'
+                  label='Tagline *'
                 ></paper-input>
               </div>
               <div class="basics">
-                <paper-input name="short_description"
+                <paper-textarea name="detail" char-counter maxlength="256"
                   required auto-validate
-                  label='Short Description *'
-                ></paper-input>
-                <paper-input name="long_description"
-                  required auto-validate
-                  label='Long Description *'
-                ></paper-input>
+                  always-float-label
+                  label='Detail *'
+                ></paper-textarea>
               </div>
             </div>
           </div>
@@ -185,7 +190,11 @@
                 <div hidden$="[[item.disabled]]" style="display:flex;flex-direction:column;align-items:center;position:relative;">
                   <h3>[[item.name]]</h3>
                   <paper-icon-button icon="delete" day="[[item.name]]" on-tap="deleteDay" style="position:absolute;top:0;right:0"></paper-icon-button>
-                  <time-range-input style="flex-direction:column" name="[[item.name]]"></time-range-input>
+                  <time-range-input style="flex-direction:column"
+                    start-time$="[[item.startTime]]"
+                    end-time$="[[item.endTime]]"
+                    name$="[[item.name]]"
+                  ></time-range-input>
                 </div>
               </template>
             </div>
@@ -223,37 +232,40 @@
             }
           },
           data: {
-            type: Object,
-            value: () => {
-              return {
-                name: "RMIT University",
-                address: "124 La Trobe Street, Melbourne 3000",
-                logo: "/rmit.png",
-                introduction: "Hello World",
-                short_description: "Lorem ipsum dolor amet",
-                long_description: "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum ",
-                website: "www.rmit.edu.au"
-              }
-            }
+            type: Object
           }
         }
       }
       deleteDay(e) {
         let day = e.target.day;
-        let elem = this.shadowRoot.querySelector(`time-range-input[name="${day}"]`);
-        elem.rawStartTime = "";
-        elem.rawEndTime = "";
+        let idx = this.weekdays.findIndex(elem => elem.name == day);
+        this.set(`weekdays.${idx}.startTime`, "");
+        this.set(`weekdays.${idx}.endTime`, "");
       }
       computeHeading(name) {
         return name ? name : 'New Retailer';
       }
       toggleEdit() {
         this.editing = !this.editing;
+        console.log(this.data);
         Object.keys(this.data).forEach((k) => {
-          if (typeof this.data[k] != String) {
-            return;
+          let elem = this.shadowRoot.getElementById('edit').querySelector(`[name="${k}"]`);
+          
+          if (typeof this.data[k] == "string") {
+            if(!elem) return;
+            elem.value = this.data[k];
           }
-          this.shadowRoot.getElementById('edit').querySelector(`[name="${k}"]`).value = this.data[k];
+
+          if(k == "operating_hours") {
+            for(let i in this.data[k]) {
+              let day = this.data[k][i];
+              let name = day.name;
+              this.set(`weekdays.${i}.startTime`,day.start_time);
+              this.set(`weekdays.${i}.endTime`, day.end_time);
+            }
+          }
+          
+          
         })
       }
       submitProfileChanges() {
@@ -278,7 +290,7 @@
         }).filter((rangeObj) => {
           return rangeObj.start_time && rangeObj.end_time && rangeObj.name;
         });
-        formData['times'] = timeRangeData;
+        formData['operating_hours'] = timeRangeData;
         this.dispatchEvent(new CustomEvent('update-profile', {
           detail: formData,
           bubbles: true,

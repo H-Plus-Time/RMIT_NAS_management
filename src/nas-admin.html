@@ -50,7 +50,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-icon-button icon="send" on-tap="createRetailer"></paper-icon-button>
     </div>
     <template is="dom-repeat" id="list-container" items="[[data]]">
-      <user-card data$="[[item]]"></user-card>
+      <user-card key="[[item.$key]]" email="[[item.email]]"
+        data$="[[item.profile]]" status="[[item.status]]"></user-card>
     </template>
   </template>
 

@@ -31,6 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/login-fire/login-fire-social.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 <link rel="import" href="nas-icons.html">
 <link rel="import" href="helper-import.html">
 
@@ -59,28 +60,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       paper-tabs {
         --paper-tabs-selection-bar-color: #454545;
+        min-height:50%;
       }
 
-      paper-tab {
-        --paper-tab: {
-          line-height:30px;
-          font-size:1em !important;
-        }
+      a.link {
+        @apply --layout-horizontal;
+        @apply --layout-center-center;
+        text-transform: uppercase;
+        text-decoration: none;
+        color:inherit;
+        font-size:20px;
+        padding:5px;
       }
-
-      paper-tab[link] a {
-          /* These mixins (from iron-flex-layout) center the link text. */
-          /*@apply(--layout-horizontal);*/
-          /*@apply(--layout-center-center);*/
-          color: inherit;
-          text-decoration: none;
-          padding-left:10px;
-          padding-right:10px;
-          flex: 1 1 auto;
-          /*align-self:center;*/
-          height:50% !important;
-          
-        }
 
       .drawer-list {
         margin: 0 20px;
@@ -107,22 +98,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         /*height:100px;*/
         /*align-items:flex-start;*/
       }
-      app-toolbar div[menu-container] {
-        position:absolute;
-        right:0;
-        margin:auto;
-        display:flex;
-        flex-direction:row;
-        align-items:center;
-        text-transform:uppercase;
-        --paper-tabs-selection-bar-color: var(--app-accent-color);
-      }
 
       paper-dialog {
         padding:20px;
         /*min-width:640px;*/
         /*min-height:640px;*/
       }
+      
 
       paper-dialog-scrollable {
         display: flex;
@@ -138,35 +120,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         pattern="/:page"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
+    <!--<app-indexeddb-mirror
+      key="[[user.uid]]"
+      data="[[user]]"
+    >
+    </app-indexeddb-mirror>-->
     <firebase-app
-      name="func-test"
+      name="nas-app"
       app="{{app}}"
-      auth-domain="func-test-3cf00.firebaseapp.com"
-      database-url="https://func-test-3cf00.firebaseio.com/"
+      auth-domain="nas-app.firebaseapp.com"
+      database-url="https://nas-app.firebaseio.com/"
       api-key="[[apiKey]]"
-      storage-bucket="func-test-3cf00.appspot.com"
-      messaging-sender-id="556859525284">
+      storage-bucket="nas-app.appspot.com"
+      messaging-sender-id="464916472687">
     </firebase-app>
     <firebase-query id="offer-query"
-      app-name="func-test"
-      path="offers/[[hashedEmail]]"
+      app-name="nas-app"
+      path="offers/[[user.uid]]"
       data="{{offerData}}">
     </firebase-query>
     <firebase-query id="retailer-query"
-      app-name="func-test"
-      path="users"
+      app-name="nas-app"
+      path="retailers"
       data="{{retailersData}}">
     </firebase-query>
+    <firebase-document
+      path="retailers"
+      data="{{stuff}}"></firebase-document>
     <firebase-document id="profile-document"
-      app-name="func-test"
-      path="users/[[hashedEmail]]/profile"
+      app-name="nas-app"
+      path="retailers/[[user.uid]]/profile"
       data="{{profileData}}">
     </firebase-document>
     <paper-dialog id="authDialog" with-backdrop center>
       <paper-dialog-scrollable>
         <login-fire-social on-signedin="closeDialog"
           providers="google, facebook, twitter, github, anonymous"
-          app-name="func-test" user="{{user}}" signed-in="{{signedIn}}"
+          app-name="nas-app" user="{{user}}" signed-in="{{signedIn}}"
         >
         </login-fire-social>
       </paper-dialog-scrollable>
@@ -177,10 +167,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="home" href="#/home">Home</a>
-          <template is="dom-if" if="{{auth.role == 'admin'}}">
+          <template is="dom-if" if="[[isAdmin]]">
             <a name="admin" href="#/admin"></a>
           </template>
-          <template is="dom-if" if="[[signedIn]]">
+          <template is="dom-if" if="[[isRetailer]]">
             <a name="offers" href="#/offers">Offers</a>        
             <a name="profile" href="#/profile">Profile</a>
           </template>
@@ -196,25 +186,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <app-toolbar>
             <paper-icon-button icon="nas-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>NAS Management</div>
-            <div menu-container>
               <paper-tabs hidden$="[[smallScreen]]">
-                <template is="dom-if" if="[[isAdmin]]">
+                <template is="dom-repeat" items="[[menuItems]]">
                   <paper-tab link>
-                    <a href="#/admin">Admin</a>
-                  </paper-tab>
-                </template>
-                <template is="dom-if" if="[[isRetailer]]">
-                  <paper-tab link>
-                    <a href="#/profile">Profile</a>
-                  </paper-tab>
-                  <paper-tab link>
-                    <a href="#/offers">Offers</a>
+                    <a href="#/[[item.href]]" tabindex="-1" class="link">[[item.text]]</a>
                   </paper-tab>
                 </template>
               </paper-tabs>
               <paper-button hidden$="[[smallScreen]]"
                 on-tap="authAction">Sign [[authDirection]]</paper-button>
-            </div>
           </app-toolbar>
         </app-header>
 
@@ -224,7 +204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <nas-home name="home"></nas-home>
-          <nas-offers name="offers" app-name="func-test"
+          <nas-offers name="offers" app-name="nas-app"
             offers="[[offerData]]"
             on-delete-offer="deleteOffer"
             on-create-offer="createOffer"></nas-offers>
@@ -235,7 +215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <nas-profile name="profile"
             data="[[profileData]]"
             on-update-profile="updateProfile"
-            app-name="func-test"></nas-profile>
+            app-name="nas-app"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
         </iron-pages>
       </app-header-layout>
@@ -253,12 +233,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reflectToAttribute: true,
             observer: '_pageChanged',
           },
-          user: {
-            value: () => false
-          },
           smallScreen: {
             type: Boolean,
             value: () => false
+          },
+          menuItems: {
+            type: Array,
+            computed: 'filterMenu(isAdmin, isRetailer)'
           },
           authDirection: {
             type: String,
@@ -270,29 +251,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           isRetailer: {
             type: Boolean,
-            computed: 'computeIsRetailer(signedIn)'
-          },
-          isAdmin: {
-            type: Boolean,
-            value: () => false
+            notify: true,
+            computed: 'computeIsRetailer(signedIn, isAdmin)'
           }
         };
       }
 
-      computeIsRetailer(signedIn) {
-        return signedIn;
+      computeIsRetailer(signedIn, isAdmin) {
+        console.log(this.isAdmin);
+        if(isAdmin == undefined) {
+          return false;
+        }
+        return signedIn && !isAdmin;
       }
       computeAuthDirection(signedIn) {
         return signedIn ? 'out' : 'in';
       }
 
+      determineAdmin(signedIn, app, user) {
+        if(!signedIn || !user || !app) {
+          return;
+        }
+        // we should be signed in now
+        let db = this.app.database();
+        db.ref(`admins/${this.user.uid}`).set(true).then(success => {
+          // we have admin access!
+          this.isAdmin = true;
+        }).catch(err => {
+          this.isAdmin = false;
+        })
+      }
+
+      filterMenu(isAdmin, isRetailer) {
+        if(isAdmin) {
+          return [{"href": "admin", "text": "Admin"}];
+        } else if (isRetailer) {
+          return [
+            {"href": "profile", "text": "Profile"},
+            {"href": "offers", "text": "Offers"},
+          ];
+        } else {
+          return [];
+        }
+      }
+
       closeDialog(e) {
-        this.shadowRoot.querySelector('paper-dialog').close();        
+        this.shadowRoot.querySelector('paper-dialog').close();    
       }
 
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
+          'determineAdmin(signedIn, app, user)'
         ];
       }
 
@@ -333,6 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       authAction() {
         if(this.signedIn) {
           this.shadowRoot.querySelector('login-fire-social').signOut();
+          this.isAdmin = false;
         } else {
           this.shadowRoot.getElementById('authDialog').open();
         }
@@ -351,51 +362,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       createRetailer(e) {
         let email = e.detail.email;
         let db = this.app.database();
-        db.ref('users/' + CryptoJS.SHA256(email)).set({
-          email: email,
-          status: 'pending',
-          role: 'retailer',
-          time_created: new Date().getTime() / 1000
-        });
+        db.ref('invitees/' + email.replace(/\./g, ',')).set(true);
       }
       deleteRetailer(e) {
+        let key = e.detail.key;
         let email = e.detail.email;
         let db = this.app.database();
-        // NB: the email in question isn't the user's (in this case an admin),
-        // so we can't rely on the hashedEmail property.
-        db.ref('users/' + CryptoJS.SHA256(email)).remove();
+        db.ref(`invitees/${email.replace(/\./g, ',')}`).remove();
+        db.ref(`retailers/${key}`).remove();
+        db.ref(`offers/${key}`).remove();
       }
 
       createOffer(e) {
-        let email = this.user.email;
-        let offerId = 'somerandomnumber';
         let payload = Object.assign({}, e.detail);
-        payload['offerId'] = offerId;
+        payload.image = 'http://placehold.it/100x100';
         payload.start_time = new Date(e.detail.start_time).getTime() / 1000;
         payload.end_time = new Date(e.detail.end_time).getTime() / 1000;
         let db = this.shadowRoot.getElementById('offer-query').db;
-        db.ref(`offers/${this.hashedEmail}`).push(payload);
+        db.ref(`offers/${this.user.uid}`).push(payload);
       }
 
       deleteOffer(e) {
         let offerId = e.detail;
         let db = this.shadowRoot.getElementById('offer-query').db;
-        db.ref(`offers/${this.hashedEmail}`).child(offerId).remove();
+        db.ref(`offers/${this.user.uid}`).child(offerId).remove();
       }
+
       updateProfile(e) {
         let payload = e.detail;
         let db = this.app.database();
-        db.ref(`users/${this.hashedEmail}/profile`).update(payload);
-        db.ref(`users/${this.hashedEmail}/status`).set('active');
+        payload.logo = "http://placehold.it/150x150";
+        payload.banners = [
+          {"alt": "Banner No. 1", src: "http://placehold.it/150x100"}
+        ];
+        payload.menus = [
+          {"alt": "Menu No. 1", src: "http://placehold.it/150x212"}
+        ];
+        db.ref(`retailers/${this.user.uid}/profile`).update(payload);
+        db.ref(`retailers/${this.user.uid}/status`).set('active');
+        db.ref(`retailers/${this.user.uid}/email`).set(this.user.email);
         // not the only thing we have to do. Need to upload images to storage.
         // TODO
       }
 
       ready() {
         super.ready();
-        let q = this.shadowRoot.getElementById('retailer-query');
-        q.equalTo = "retailer";
-        q.orderByChild = 'role';
+
       }
     }
 

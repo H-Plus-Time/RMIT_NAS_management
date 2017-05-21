@@ -35,12 +35,11 @@
                 color:initial;
             }
             .image_block {
-                /*width:150px !important;*/
                 border-right:#000000 1px solid;
             }
         </style>
         <div class="image_block">
-            <iron-image sizing="contain" src$="[[data.img]]"></iron-image>
+            <iron-image sizing="contain" src$="[[data.image]]"></iron-image>
         </div>
         <h2 style="width:15%;flex: 0 0 auto">[[data.title]]</h2>
         <p style="flex-grow:3">[[data.description]]</p>
@@ -112,37 +111,34 @@
                 padding:10px;
                 align-items:center;
             }
-            img {
-                width: 50px;
-                height: 50px;
+
+            iron-image {
+                width:50px;
+                height:50px;
+                /*margin:auto;*/
+                align-self:center;
             }
-            div[info] {
-                display:flex;
-                align-items:inherit;
-                flex-direction:row;
-            }
-            div[info] * {
-                padding:5px;
-            }
+
             .delete {
                 background:#FF4136;
                 color:white;
                 font-weight:bold;
             }
+            .image_block {
+                border-right:#000000 1px solid;
+                display:flex;
+                padding:5px;
+            }
         </style>
-        <div info>
-            <img src$="[[data.img]]">
-            <div>[[data.name]]</div>
-            <p>[[data.address]]</p>
-            <a href$="[[data.email]]">[[data.email]]</a>
-            <p>[[data.status]]</p>
+        <div class="image_block">
+            <iron-image sizing="contain" src$="[[data.logo]]"></iron-image>
         </div>
-        <div actions hidden$="[[data.status == 'pending']]">
-            <paper-button class="delete" hidden$="[[!active]]" on-tap="deleteRetailer">
-                <iron-icon icon="delete"></iron-icon>
-                Delete
-            </paper-button>
-        </div>
+        <h2 style="width:15%;flex: 0 0 auto; margin:5px">[[data.name]]</h2>
+        <p style="flex-grow:3">[[email]]</p>
+        <paper-button style="flex-shrink:0" class="delete" hidden$="[[!active]]" on-tap="deleteRetailer">
+            <iron-icon icon="delete"></iron-icon>
+            Delete
+        </paper-button>
     </template>
     <script>
         class UserCard extends Polymer.Element {
@@ -154,19 +150,17 @@
                     },
                     active: {
                         type: Boolean,
-                        computed: 'computeActive(data.status)'
+                        computed: 'computeActive(status)'
                     }
                 }
             }
             computeActive(status) {
-                if(status == 'active') {
-                    return true;
-                }
-                return false;
+                return status == 'active' ? true : false;
             }
             deleteRetailer(e) {
+                console.log(this.key);
                 this.dispatchEvent(new CustomEvent('delete-retailer',
-                    {detail: {email: this.data.email}, bubbles: true, composed: true}))
+                    {detail: {key: this.key, email: this.email}, bubbles: true, composed: true}))
             }
         }
         window.customElements.define(UserCard.is, UserCard);
@@ -175,20 +169,118 @@
 <dom-module id="time-range-output">
     <template>
         <style>
-
+            :host {
+                padding:5px;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+            }
         </style>
         <label>[[name]]</label>
-        <div>[[start]] - [[end]]</div>
+        <div>[[computedStart]] - [[computedEnd]]</div>
     </template>
     <script>
         class TimeRangeOutput extends Polymer.Element {
             static get is() { return 'time-range-output'; }
             static get properties() {
                 return {
-
+                    militaryTime: {
+                        type: Boolean,
+                        value: () => {
+                            let lString = (new Date(3600*4*1000)).toLocaleString();
+                            if(lString.indexOf('AM') != -1 || lString.indexOf('PM') != -1) {
+                                return false;
+                            }
+                            return true;
+                        }
+                    },
+                    computedStart: {
+                        type: String,
+                        computed: 'computeTime(start, militaryTime)'
+                    },
+                    computedEnd: {
+                        type: String,
+                        computed: 'computeTime(end, militaryTime)'
+                    }
+                }
+            }
+            computeTime(time, militaryTime) {
+                if(militaryTime) {
+                    // already stored in military time
+                    return time;
+                }
+                else {
+                    // we expect "HH:MM", since that's all the 
+                    // defective input[type=time] can handle
+                    let components = time.split(':');
+                    let hours = Number(components[0]);
+                    let period = (hours / 12 >> 0) == 1 ? 'PM' : 'AM';
+                    return `${hours % 12}:${components[1]} ${period}`;
                 }
             }
         }
         window.customElements.define(TimeRangeOutput.is, TimeRangeOutput);
+    </script>
+</dom-module>
+
+<dom-module id="multi-time-range-output">
+    <template>
+        <style>
+            :host {
+                display:flex;
+                padding:10px;
+            }
+        </style>
+        <template is="dom-repeat" items="[[groupedTimes]]">
+            <time-range-output
+              name="[[item.name]]"
+              start="[[item.start_time]]"
+              end="[[item.end_time]]"
+            ></time-range-output>
+        </template>
+    </template>
+    <script>
+        class MultiTimeRangeOutput extends Polymer.Element {
+            static get is() { return 'multi-time-range-output'; }
+            static get properties() {
+                return {
+                    times: {
+                        type: Array
+                    },
+                    groupedTimes: {
+                        computed: 'computeGrouped(times)'
+                    }
+                }
+            }
+            computeGrouped(times) {
+                let catTimes = [];
+                let daysAccounted = 0;
+                if(!times) {
+                    return;
+                }
+                while(daysAccounted < times.length) {
+                    let cand = {};
+                    for(var i = daysAccounted; i < times.length; i++) {
+                        // init the candidate range structure, since its empty.
+                        if(!cand.start_time) {
+                            cand = times[i];
+                            daysAccounted++;
+                            continue;
+                        }
+                        // break if we find a day with a different time range
+                        // since we're only looking for contiguous groups, there's no 
+                        // point going any further.
+                        if(times[i].start_time != cand.start_time || times[i].end_time != cand.end_time) {
+                            break;
+                        }
+                        cand.name = `${cand.name.split(' - ')[0]} - ${times[i].name}`;
+                        daysAccounted++;
+                    }
+                    catTimes.push(cand);
+                }
+                return catTimes;
+            }
+        }
+        window.customElements.define(MultiTimeRangeOutput.is, MultiTimeRangeOutput);
     </script>
 </dom-module>
