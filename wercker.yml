@@ -20,6 +20,10 @@ build:
         code: |
           bower install --allow-root --config.interactive=false
     - script:
+        name: gen keys
+        code: |
+          ./key.sh
+    - script:
         name: actual build
         code: |
           polymer build
@@ -28,4 +32,4 @@ deploy:
     - script:
         name: firebase deploy
         code: |
-          firebase deploy --project=nas-app --token "$FIREBASE_KEY"
+          firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"
