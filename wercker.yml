@@ -1,6 +1,6 @@
 box:
-    id: justinribeiro/lighthouse
-    cmd: /bin/sh
+  id: justinribeiro/lighthouse
+  cmd: /bin/sh
 build:
   steps:
     - script:
