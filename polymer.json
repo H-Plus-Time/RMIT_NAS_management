@@ -2,7 +2,7 @@
   "entrypoint": "index.html",
   "shell": "src/nas-mgmt-app.html",
   "fragments": [
-    "src/nas-home.html",
+    "src/nas-howto.html",
     "src/nas-profile.html",
     "src/nas-offers.html",
     "src/nas-admin.html",
