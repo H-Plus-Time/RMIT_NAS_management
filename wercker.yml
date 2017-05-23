@@ -14,7 +14,7 @@ build:
     - script:
         name: install dependencies
         code: |
-          HOME=$YARN_CACHE yarn && yarn global add bower polymer-cli firebase-tools
+          HOME=$YARN_CACHE yarn && yarn global add bower polymer-cli
     - script:
         name: bower install
         code: |
@@ -32,4 +32,5 @@ deploy:
     - script:
         name: firebase deploy
         code: |
+          yarn global add firebase-tools
           firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"
