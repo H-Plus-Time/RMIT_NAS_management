@@ -6,7 +6,7 @@ build:
     - script:
         name: install yarn
         code: |
-          npm install -g yarn
+          apk --no-cache add git && npm install -g yarn
     - script:
         name: set yarn cache
         code: |
