@@ -63,7 +63,7 @@
       }
 
       .basics > * {
-        /*padding: 5px;*/
+        padding: 5px;
       }
 
       .basics {
@@ -140,73 +140,75 @@
         <div id="edit" hidden$="[[!editing]]" style="display:flex;flex-direction:column">
           <div id="basic-section" style="display:flex;flex-direction:row">
             <file-fire-drop class="logo" app-name="[[appName]]"
-              path="/dropdemo/click" src-file over-write
-              max-dimension="200" resize-height="16"
-              resize-width="16" progress="{{progress}}"
+              path="/[[retailer]]/logo" src-file over-write
+              max-dimension="200" progress="{{progress}}"
               placeholder="{{base64}}" files="{{images}}"
-              always-show
+              always-show on-upload="recordLogo" name="logo"
             >
             </file-fire-drop>
             <div>
               <div class="basics">
                 <div style="display:inline-block;">
-                  <paper-input name="name"
+                  <paper-input name="name" value="{{name}}"
                     required auto-validate
                     label='Name *'
                   ></paper-input>
                   <paper-tooltip offset="0">Your trading name</paper-tooltip>
                 </div>
                 <div style="display:inline-block">
-                  <paper-input name="building"
+                  <paper-input name="building" value="{{building}}" 
                     required auto-validate type="number"
                     label="Building">
                   </paper-input>
                   <paper-tooltip offset="0">If you're within 5-10m of one, please list it</paper-tooltip>
                 </div>
                 <div style="display:inline-block">
-                  <paper-input name="level"
+                  <paper-input name="level" level="{{level}}"
                     required auto-validate type="number"
                     label="Level *">
                   </paper-input>
                   <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
                 </div>
                 <div style="display:inline-block">
-                  <paper-input name="address"
+                  <paper-input name="address" value="{{address}}"
                     required auto-validate
                     label='Address *'
                   ></paper-input>
                   <paper-tooltip offset="0"></paper-tooltip>
                 </div>
                 <div style="display:inline-block">
-                  <paper-input name="website"
+                  <paper-input name="website" value="{{website}}"
                     label='Website (optional)'
                   ></paper-input>
                   <paper-tooltip offset="0">If you have one</paper-tooltip>
                 </div>
                 <div style="display:inline-block">
                   <paper-input name="tagline" char-counter maxlength="25"
-                    required auto-validate
+                    required auto-validate value="{{tagline}}"
                     label='Tagline *'
                   ></paper-input>
-                  <paper-tooltip offset="0">A /very/ short description</paper-tooltip>
+                  <paper-tooltip offset="0">A <i>very</i> short description - e.g. Hip Burger Joint</paper-tooltip>
                 </div>
               </div>
               <div style="display:inline-block">
                 <paper-textarea name="detail" char-counter maxlength="256"
-                  required auto-validate
+                  required auto-validate value="{{detail}}"
                   always-float-label
                   label='Detail *'
                 ></paper-textarea>
+                <paper-tooltip offset="0" position="top">A longer description of your establishment</paper-tooltip>
               </div>
             </div>
           </div>
           <div style="display:flex;flex-direction:column">
-            <file-fire-drop-multi app-name="[[appName]]" label="Menu Images"></file-fire-drop-multi>
-            <file-fire-drop-multi app-name="[[appName]]" label="Carousel Images"></file-fire-drop-multi>
+            <file-fire-drop-multi id="menus-input" uploaded-images="{{menuImages}}" app-name="[[appName]]" prefix="[[retailer]]/menu" label="Menu Images"></file-fire-drop-multi>
+            <paper-tooltip for="menus-input" offset="0">Upload up to 7 menu images</paper-tooltip>
+            <file-fire-drop-multi id="banners-input" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Carousel Images"></file-fire-drop-multi>
+            <paper-tooltip for="banners-input" offset="0">Upload up to 7 banner images</paper-tooltip>
             <h3>Operating Hours</h3>
             <div style="display:flex;flex-wrap:wrap;justify-content:center;">
               <template is="dom-repeat" items="[[weekdays]]">
-                <div hidden$="[[item.disabled]]" style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                <div id$="hours-[[item.name]]" hidden$="[[item.disabled]]" style="display:flex;flex-direction:column;align-items:center;position:relative;">
                   <h3>[[item.name]]</h3>
                   <paper-icon-button icon="delete" day="[[item.name]]" on-tap="deleteDay" style="position:absolute;top:0;right:0"></paper-icon-button>
                   <time-range-input style="flex-direction:column"
@@ -215,9 +217,10 @@
                     name$="[[item.name]]"
                   ></time-range-input>
                 </div>
+                <paper-tooltip for$="hours-[[item.name]]" offset="0">Specify opening and closing times for [[item.name]]</paper-tooltip>
               </template>
             </div>
-            <paper-button on-tap="submitProfileChanges" hidden$="[[!editing]]">Save</paper-button>
+            <paper-button on-tap="submitProfileChanges" disabled$="[[!filledOut]]" hidden$="[[!editing]]">Save</paper-button>
           </div>
         </div>
       </div>
@@ -232,6 +235,10 @@
       }
       static get properties() {
         return {
+          appName: {
+            type: String,
+            reflectToAttribute: true
+          },
           editing: {
             type: Boolean,
             value: () => false
@@ -239,6 +246,14 @@
           profileHeading: {
             type: String,
             computed: 'computeHeading(data.name)'
+          },
+          filledOut: {
+            type: Boolean,
+            computed: 'computeFilled(name,address,tagline,detail,logo,awaitingImages)'
+          },
+          awaitingImages: {
+            type: Boolean,
+            value: () => false
           },
           weekdays: {
             type: Array,
@@ -255,6 +270,9 @@
           }
         }
       }
+      computeFilled(name,address,tagline,detail,logo,awaitingImages) {
+        return name && address && tagline && detail && logo && !awaitingImages;
+      }
       deleteDay(e) {
         let day = e.target.day;
         let idx = this.weekdays.findIndex(elem => elem.name == day);
@@ -266,7 +284,6 @@
       }
       toggleEdit() {
         this.editing = !this.editing;
-        console.log(this.data);
         Object.keys(this.data).forEach((k) => {
           let elem = this.shadowRoot.getElementById('edit').querySelector(`[name="${k}"]`);
           
@@ -283,9 +300,25 @@
               this.set(`weekdays.${i}.endTime`, day.end_time);
             }
           }
-          
+          if(k == 'banners') {
+            this.set('bannerImages',this.data[k])
+          }
+          if(k == 'menus') {
+            this.set('menuImages', this.data[k]);
+          }
+          if(k == 'logo') {
+            this.set('logo', this.data[k]);
+            this.shadowRoot.querySelector('file-fire-drop').updateStyles(
+              {"--file-fire-dropzone-background-image": `url(${this.data[k]})`});
+          }
           
         })
+      }
+
+      recordLogo(e) {
+        this.set('logo', e.detail.urls[0].url);
+        this.shadowRoot.querySelector('file-fire-drop').updateStyles(
+          {"--file-fire-dropzone-background-image": `url(${this.logo})`});
       }
       submitProfileChanges() {
         let formRoot = this.shadowRoot.getElementById('edit');
@@ -309,6 +342,13 @@
         }).filter((rangeObj) => {
           return rangeObj.start_time && rangeObj.end_time && rangeObj.name;
         });
+        console.log(formRoot);
+        formData['menus'] = this.shadowRoot.getElementById('menus-input').uploadedImages;
+        formData['banners'] = this.shadowRoot.getElementById('banners-input').uploadedImages;
+        if(this.logo) {
+          formData['logo'] = this.logo;
+        }
+        
         formData['operating_hours'] = timeRangeData;
         this.dispatchEvent(new CustomEvent('update-profile', {
           detail: formData,

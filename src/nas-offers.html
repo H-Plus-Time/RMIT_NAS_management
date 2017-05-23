@@ -15,6 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
 
 
@@ -57,14 +58,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-dialog>
       <h2>Create an Offer</h2>
       <div>
-        <file-fire-drop app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
+        <file-fire-drop app-name="[[appName]]"
+          on-upload="_handleUpload"
+          path="/[[retailer]]/offers/[[now]]"
+          src-file over-write max-dimension="200"
+          progress="{{progress}}" placeholder="{{base64}}"
+          files="{{images}}" always-show
+        >
         </file-fire-drop>
-        <paper-input name="title" autofocus required auto-validate label="Title"></paper-input>
-        <paper-input name="tagline" required auto-validate char-counter maxlength="25" label="Tagline"></paper-input>
-        <paper-input name="description" required auto-validate char-counter maxlength="140" label="Description"></paper-input>
-        <paper-input name="start_time" required auto-validate type="datetime-local" label="Start Time"></paper-input>
-        <paper-input name="end_time" required auto-validate type="datetime-local" label="End Time"></paper-input>
-        <paper-button dialog-confirm on-tap="createOffer">Submit</paper-button>
+        <paper-input name="title"
+          autofocus value="{{fields.title}}"
+          required auto-validate label="Title"></paper-input>
+        <div style="display:inline-block">
+          <paper-input name="tagline"
+            value="{{fields.tagline}}" required
+            auto-validate char-counter
+            maxlength="25" label="Tagline"
+          ></paper-input>
+          <paper-tooltip offset="0">A short, eyecatching description - e.g. 'Hurry while stocks last!'</paper-tooltip>
+        </div>
+        <paper-input name="description"
+          value="{{fields.description}}" required
+          auto-validate char-counter maxlength="140"
+          label="Description"
+        ></paper-input>
+        <div style="display:inline-block">
+          <paper-input name="start_time"
+            value="{{fields.start_time}}"
+            required auto-validate type="datetime-local"
+            label="Start Time"
+          ></paper-input>
+          <paper-tooltip offset="0">When the offer will be available from</paper-tooltip>
+        </div>
+        <div style="display:inline-block">
+          <paper-input name="end_time" value="{{fields.end_time}}"
+            required auto-validate type="datetime-local"
+            label="End Time"
+          ></paper-input>
+          <paper-tooltip offset="0">When the offer expires</paper-tooltip>
+        </div>
+        <paper-button dialog-confirm on-tap="createOffer" disabled$="[[!filledOut]]">Submit</paper-button>
       </div>
     </paper-dialog>
     <paper-button on-tap="openDialog">Create an Offer</paper-button>
@@ -90,8 +123,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 end_time: 1494704400, description: 'the quick brown fox jumps'}
               ]
             }
+          },
+          fields: {
+            type: Object,
+            notify: true,
+            value: () => ({})
+          },
+          appName: {
+            type: String,
+            reflectToAttribute: true
+          },
+          now: {
+            type: Number,
+            value: () => (new Date().getTime()/1000)
+          },
+          filledOut: {
+            type: Boolean,
+            value: () => false,
+            computed: 'computeFilledOut(fields.title, fields.description,fields.tagline,fields.image)'
           }
         }
+      }
+
+      computeFilledOut(title, description,tagline,image) {
+        return title && description && tagline && image;
       }
 
       compareOfferTimes(a,b) {
@@ -113,19 +168,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         dialog.querySelector('div paper-input[name="end_time"]').value = pod_fmt;
       }
 
+      _handleUpload(e) {
+        this.set('fields.image', e.detail.urls[0].url);
+      }
+
       createOffer(e) {
         let paperDialogRoot = this.shadowRoot.querySelector('paper-dialog');
-        let fields = paperDialogRoot.querySelector('div').children;
-        let formData = Array.from(fields).filter((elem) => {
-          return elem.hasAttribute('name')
-        }).map((elem) => {
-          let obj = {};
-          obj[elem.name] = elem.value;
-          return obj;
-        }).reduce((a,b) => Object.assign(a, b), {});
         this.dispatchEvent(new CustomEvent('create-offer',
           {
-            detail: formData, 
+            detail: this.fields, 
             bubbles: true
           }))
       }

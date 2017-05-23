@@ -27,6 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymerfire/firebase-messaging-script.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/login-fire/login-fire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
@@ -152,6 +153,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       path="retailers/[[user.uid]]/profile"
       data="{{profileData}}">
     </firebase-document>
+    <paper-toast id="notify">[[notifyMessage]]</paper-toast>
     <paper-dialog id="authDialog" with-backdrop center>
       <paper-dialog-scrollable>
         <login-fire on-signedin="closeDialog"
@@ -185,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="nas-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>NAS Management</div>
+            <div main-title>RMIT Food Deals Management</div>
               <paper-tabs hidden$="[[smallScreen]]">
                 <template is="dom-repeat" items="[[menuItems]]">
                   <paper-tab link>
@@ -207,6 +209,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <nas-offers name="offers" app-name="nas-app"
             offers="[[offerData]]"
             on-delete-offer="deleteOffer"
+            retailer="[[user.uid]]"
             on-create-offer="createOffer"></nas-offers>
           <nas-admin name="admin"
             data="[[retailersData]]"
@@ -214,6 +217,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             on-create-retailer="createRetailer"></nas-admin>
           <nas-profile name="profile"
             data="[[profileData]]"
+            retailer="[[user.uid]]"
             on-update-profile="updateProfile"
             app-name="nas-app"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
@@ -225,7 +229,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     class NasMgmtApp extends Polymer.Element {
 
       static get is() { return 'nas-mgmt-app'; }
-
+      constructor() {
+        super();
+        this.toastColors = {
+          info: '#323232',
+          warn: '#FEEFB3'
+        }
+      }
       static get properties() {
         return {
           page: {
@@ -245,10 +255,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             computed: 'computeAuthDirection(signedIn)'
           },
-          hashedEmail: {
-            type: String,
-            computed: 'computeEmailHash(user.email)'
-          },
           isRetailer: {
             type: Boolean,
             notify: true,
@@ -259,6 +265,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             observer: 'runOnChangeAuth'
           }
         };
+      }
+
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+          'determineAdmin(signedIn, app, user)'
+        ];
+      }
+
+      ready() {
+        super.ready();
+        this.addEventListener('toast-notify', e => this._handleToastNotify(e));
+      }
+
+      _handleToastNotify(e) {
+        console.log(e);
+        let toast = this.shadowRoot.getElementById('notify');
+        toast.updateStyles({"--paper-toast-background-color": this.toastColors[e.detail.level]});
+        this.notifyMessage = e.detail.msg;
+        toast.show({duration: e.detail.duration || 2000});
       }
       runOnChangeAuth(signedIn) {
         if(!signedIn) {
@@ -311,13 +337,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.shadowRoot.querySelector('paper-dialog').close();    
       }
 
-      static get observers() {
-        return [
-          '_routePageChanged(routeData.page)',
-          'determineAdmin(signedIn, app, user)'
-        ];
-      }
-
       _routePageChanged(page) {
         // Polymer 2.0 will call with `undefined` on initialization.
         // Ignore until we are properly called with a string.
@@ -332,7 +351,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(this.page == 'admin' && !this.isAdmin) {
           this.set('route.path', '/');
         } else if (this.page == 'profile' && !this.isRetailer) {
-          this.set('route.path', '/');
+          // this.set('route.path', '/');
         } else {
           
         }
@@ -367,20 +386,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
-      computeEmailHash(email) {
-        console.log(email);
-        return CryptoJS.SHA256(email).toString();
-      }
-
-      async testFunc() {
-        console.log("Hola")
-      }
-
       // firebase crud handlers
       createRetailer(e) {
         let email = e.detail.email;
         let db = this.app.database();
         db.ref('invitees/' + email.replace(/\./g, ',')).set(true);
+        this.dispatchEvent(new CustomEvent('toast-notify',
+          {detail: {msg: `Invite dispatched to ${email}`, level: 'info'}, bubbles: true}))
       }
       deleteRetailer(e) {
         let key = e.detail.key;
@@ -389,11 +401,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         db.ref(`invitees/${email.replace(/\./g, ',')}`).remove();
         db.ref(`retailers/${key}`).remove();
         db.ref(`offers/${key}`).remove();
+        this.dispatchEvent(new CustomEvent('toast-notify',
+          {detail: {msg: `Account registered under ${email} successfully deleted`, level: 'info'}, bubbles: true}))
       }
 
       createOffer(e) {
         let payload = Object.assign({}, e.detail);
-        payload.image = 'http://placehold.it/100x100';
         payload.start_time = new Date(e.detail.start_time).getTime() / 1000;
         payload.end_time = new Date(e.detail.end_time).getTime() / 1000;
         let db = this.shadowRoot.getElementById('offer-query').db;
@@ -409,23 +422,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       updateProfile(e) {
         let payload = e.detail;
         let db = this.app.database();
-        payload.logo = "http://placehold.it/150x150";
-        payload.banners = [
-          {"alt": "Banner No. 1", src: "http://placehold.it/150x100"}
-        ];
-        payload.menus = [
-          {"alt": "Menu No. 1", src: "http://placehold.it/150x212"}
-        ];
+
+        for(let m in payload.menus) {
+          payload.menus[m].alt = `Menu No. ${m}`;
+        }
+        for(let m in payload.banners) {
+          payload.banners[m].alt = `Banner No. ${m}`;
+        }
         db.ref(`retailers/${this.user.uid}/profile`).update(payload);
         db.ref(`retailers/${this.user.uid}/status`).set('active');
         db.ref(`retailers/${this.user.uid}/email`).set(this.user.email);
-        // not the only thing we have to do. Need to upload images to storage.
-        // TODO
-      }
-
-      ready() {
-        super.ready();
-
       }
     }
 

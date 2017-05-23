@@ -43,11 +43,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <div class="invite-box">
-      <paper-input type="email" value="{{newRetailerEmail}}" auto-validate label="Retailer Email">
+      <paper-input type="email" value="{{newRetailerEmail}}" auto-validate invalid="{{invalid}}" label="Retailer Email">
         <iron-icon slot="prefix" icon="mail"></iron-icon>
-        <paper-icon-button slot="suffix" icon="clear" tab-index="-1"></paper-icon-button>
+        <!--<paper-icon-button slot="suffix" icon="clear" alt="clear" title="clear"></paper-icon-button>-->
       </paper-input>
-      <paper-icon-button icon="send" on-tap="createRetailer"></paper-icon-button>
+      <paper-icon-button icon="send" disabled$="[[invalid]]" on-tap="createRetailer"></paper-icon-button>
     </div>
     <template is="dom-repeat" id="list-container" items="[[data]]">
       <user-card key="[[item.$key]]" email="[[item.email]]"
@@ -67,6 +67,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 {name: 'Coffee Nomad', img: '/rmit.png', address: '124 La Trobe Street, Melbourne 3000', status: 'pending'}
               ]
             }
+          },
+          invalid: {
+            type: Boolean,
+            value: () => true
           }
         }
       }
@@ -74,6 +78,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       createRetailer() {
         this.dispatchEvent(new CustomEvent('create-retailer',
           {detail: {email: this.newRetailerEmail}, bubbles: true}));
+        
+        this.set('newRetailerEmail', '');
       }
     }
 

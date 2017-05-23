@@ -30,14 +30,23 @@
                 border-radius: 4px;
                 --file-fire-dropzone-background-image: url("http://i.imgur.com/ndcWzqn.png");
             }
+            img {
+                width:100px;
+                height:100px;
+            }
         </style>
         <label hidden$="[[!label]]">[[label]]</label>
         <div class="carousel">
             <template is="dom-repeat" items="[[uploadedImages]]">
-                <h2>[[item.name]]</h2>
-                <img src$="[[item.url]]">
+                <div style="position:relative">
+                    <paper-icon-button icon="delete"
+                        style="position:absolute;right:0;top:0"
+                        on-tap="removeImg"
+                        idx="[[index]]"></paper-icon-button>
+                    <img src$="[[item.src]]">
+                </div>
             </template>
-            <file-fire-drop app-name="[[appName]]" path="/dropdemo/click" src-file over-write max-dimension="200" resize-height="16" resize-width="16" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
+            <file-fire-drop app-name="[[appName]]" path="/[[prefix]]/[[iter]]" src-file over-write max-dimension="200" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
             </file-fire-drop>
         </div>
     </template>
@@ -52,20 +61,46 @@
                         value: () => 1
                     },
                     uploadedImages: {
-                        type: Array
+                        type: Array,
+                        value: () => [],
+                        reflectToAttribute: true,
+                        notify: true
                     },
                     label: {
                         type: String
+                    },
+                    appName: {
+                        type: String,
+                        reflectToAttribute: true
+                    },
+                    prefix: {
+                        type: String
+                    },
+                    iter: {
+                        type: Number,
+                        value: () => 0,
                     }
                 }
             }
             _handleUpload(e) {
                 console.log(e);
-                this.uploadedImages = e.detail.urls;
+                this.set('iter', this.iter +1);
+                e.detail.urls.forEach(url => {
+                    let newEntry = {alt: `#${this.iter}`, src: url.url};
+                    this.push('uploadedImages', newEntry);
+                });
             }
             ready() {
                 super.ready();
                 this.addEventListener('upload', this._handleUpload)
+            }
+
+            computeIter(uploadedImages) {
+                return uploadedImages.length;
+            }
+
+            removeImg(idx) {
+                this.splice('uploadedImages', idx, 1);
             }
             
         }
