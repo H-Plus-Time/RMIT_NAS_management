@@ -1,9 +1,7 @@
-box: justinribeiro/lighthouse
+box:
+  id: justinribeiro/lighthouse
+  cmd: /bin/sh
 build:
-  steps:
-    - script:
-        name: test
-        code: echo test
     - script:
         name: install yarn, git
         code: |
