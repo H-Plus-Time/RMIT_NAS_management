@@ -32,5 +32,5 @@ deploy:
     - script:
         name: firebase deploy
         code: |
-          apk --no-cache add yarn && yarn global add firebase-tools
+          npm install -g yarn && yarn global add firebase-tools
           firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"
