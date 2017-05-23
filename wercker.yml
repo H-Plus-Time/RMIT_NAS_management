@@ -1,12 +1,12 @@
 box:
-  id: justinribeiro/lighthouse
+  id: mhart/alpine-node:latest
   cmd: /bin/sh
 build:
   steps:
     - script:
-        name: install yarn, git
+        name: install yarn
         code: |
-          apt-get update && apt-get install -y git && npm install -g yarn
+          npm install -g yarn
     - script:
         name: set yarn cache
         code: |
@@ -26,16 +26,6 @@ build:
 deploy:
   steps:
     - script:
-        name: firebase deploy --token "$FIREBASE_KEY"
+        name: firebase deploy
         code: |
-          firebase deploy --project=nas-app
-    - script:
-        name: lighthouse audit
-        code: |
-          mkdir report && cp README.md report
-          headless_shell --no-sandbox --remote-debugging-port=9222 &>1 &
-          lighthouse https://nas-app.firebaseapp.com --output json --output-path=report/lighthouse_results.json
-          lighthouse https://nas-app.firebaseapp.com --output html --output-path=build/default/audit.html
-    - script:
-        name: deploy with audit results
-        code: firebase deploy --project=nas-app
+          firebase deploy --project=nas-app --token "$FIREBASE_KEY"
