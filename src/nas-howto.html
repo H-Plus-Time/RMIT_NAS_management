@@ -11,29 +11,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="nas-home">
+<dom-module id="nas-howto">
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
-
+        display: flex;
+        
         padding: 10px;
+      }
+      .card {
+        width:66%;
+        margin:auto;
       }
     </style>
 
     <div class="card">
-      <div class="circle">1</div>
-      <h1>View One</h1>
-      <p>Ut labores minimum atomorum pro. Laudem tibique ut has.</p>
-      <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
+      Documentation here!
     </div>
   </template>
 
   <script>
-    class NasHome extends Polymer.Element {
-      static get is() { return 'nas-home'; }
+    class NasHowto extends Polymer.Element {
+      static get is() { return 'nas-howto'; }
     }
 
-    window.customElements.define(NasHome.is, NasHome);
+    window.customElements.define(NasHowto.is, NasHowto);
   </script>
 </dom-module>

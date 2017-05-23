@@ -28,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../bower_components/login-fire/login-fire-social.html">
+<link rel="import" href="../bower_components/login-fire/login-fire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
@@ -154,11 +154,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </firebase-document>
     <paper-dialog id="authDialog" with-backdrop center>
       <paper-dialog-scrollable>
-        <login-fire-social on-signedin="closeDialog"
-          providers="google, facebook, twitter, github, anonymous"
+        <login-fire on-signedin="closeDialog"
+          providers="google"
           app-name="nas-app" user="{{user}}" signed-in="{{signedIn}}"
         >
-        </login-fire-social>
+        </login-fire>
       </paper-dialog-scrollable>
     </paper-dialog>
     <app-drawer-layout fullbleed force-narrow>
@@ -203,7 +203,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <nas-home name="home"></nas-home>
+          <nas-howto name="howto"></nas-howto>
           <nas-offers name="offers" app-name="nas-app"
             offers="[[offerData]]"
             on-delete-offer="deleteOffer"
@@ -253,10 +253,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Boolean,
             notify: true,
             computed: 'computeIsRetailer(signedIn, isAdmin)'
+          },
+          signedIn: {
+            type: Boolean,
+            observer: 'runOnChangeAuth'
           }
         };
       }
-
+      runOnChangeAuth(signedIn) {
+        if(!signedIn) {
+          this.set('route.path', '/');
+        }
+      }
       computeIsRetailer(signedIn, isAdmin) {
         console.log(this.isAdmin);
         if(isAdmin == undefined) {
@@ -284,14 +292,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       filterMenu(isAdmin, isRetailer) {
         if(isAdmin) {
-          return [{"href": "admin", "text": "Admin"}];
+          return [
+            {"href": "howto", "text": "Documentation"},
+            {"href": "admin", "text": "Admin"}
+          ];
         } else if (isRetailer) {
           return [
+            {"href": "howto", "text": "Documentation"},
             {"href": "profile", "text": "Profile"},
             {"href": "offers", "text": "Offers"},
           ];
         } else {
-          return [];
+          return [{"href": "howto", "text": "Documentation"}];
         }
       }
 
@@ -310,13 +322,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Polymer 2.0 will call with `undefined` on initialization.
         // Ignore until we are properly called with a string.
         if (page === undefined) {
+          this.page = 'howto';
           return;
         }
 
         // If no page was found in the route data, page will be an empty string.
         // Deault to 'home' in that case.
-        this.page = page || 'home';
-        if(this.page == 'edit') {
+        this.page = page || 'howto';
+        if(this.page == 'admin' && !this.isAdmin) {
+          this.set('route.path', '/');
+        } else if (this.page == 'profile' && !this.isRetailer) {
+          this.set('route.path', '/');
+        } else {
           
         }
 
@@ -342,8 +359,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       authAction() {
         if(this.signedIn) {
-          this.shadowRoot.querySelector('login-fire-social').signOut();
+          this.shadowRoot.querySelector('login-fire').signOut();
           this.isAdmin = false;
+          this.set('route.path', '/');
         } else {
           this.shadowRoot.getElementById('authDialog').open();
         }

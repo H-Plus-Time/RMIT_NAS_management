@@ -10,6 +10,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 
 <link rel="import" href="nas-inputs.html">
 <link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
@@ -61,8 +62,8 @@
         width: 66%;
       }
 
-      .basics * {
-        padding: 5px;
+      .basics > * {
+        /*padding: 5px;*/
       }
 
       .basics {
@@ -148,31 +149,49 @@
             </file-fire-drop>
             <div>
               <div class="basics">
-                <paper-input name="name"
-                  required auto-validate
-                  label='Name *'
-                ></paper-input>
-                <paper-input name="building"
-                  required auto-validate type="number"
-                  label="Building *">
-                </paper-input>
-                <paper-input name="level"
-                  required auto-validate type="number"
-                  label="Level *">
-                </paper-input>
-                <paper-input name="address"
-                  required auto-validate
-                  label='Address *'
-                ></paper-input>
-                <paper-input name="website"
-                  label='Website (optional)'
-                ></paper-input>
-                <paper-input name="tagline" char-counter maxlength="25"
-                  required auto-validate
-                  label='Tagline *'
-                ></paper-input>
+                <div style="display:inline-block;">
+                  <paper-input name="name"
+                    required auto-validate
+                    label='Name *'
+                  ></paper-input>
+                  <paper-tooltip offset="0">Your trading name</paper-tooltip>
+                </div>
+                <div style="display:inline-block">
+                  <paper-input name="building"
+                    required auto-validate type="number"
+                    label="Building">
+                  </paper-input>
+                  <paper-tooltip offset="0">If you're within 5-10m of one, please list it</paper-tooltip>
+                </div>
+                <div style="display:inline-block">
+                  <paper-input name="level"
+                    required auto-validate type="number"
+                    label="Level *">
+                  </paper-input>
+                  <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
+                </div>
+                <div style="display:inline-block">
+                  <paper-input name="address"
+                    required auto-validate
+                    label='Address *'
+                  ></paper-input>
+                  <paper-tooltip offset="0"></paper-tooltip>
+                </div>
+                <div style="display:inline-block">
+                  <paper-input name="website"
+                    label='Website (optional)'
+                  ></paper-input>
+                  <paper-tooltip offset="0">If you have one</paper-tooltip>
+                </div>
+                <div style="display:inline-block">
+                  <paper-input name="tagline" char-counter maxlength="25"
+                    required auto-validate
+                    label='Tagline *'
+                  ></paper-input>
+                  <paper-tooltip offset="0">A /very/ short description</paper-tooltip>
+                </div>
               </div>
-              <div class="basics">
+              <div style="display:inline-block">
                 <paper-textarea name="detail" char-counter maxlength="256"
                   required auto-validate
                   always-float-label

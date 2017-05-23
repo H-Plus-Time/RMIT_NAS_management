@@ -106,11 +106,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         dialog.querySelector('div paper-input[name="description"]').value = '';
         // set some reasonable defaults
         let now_basic = new Date();
-        let now = fecha.format(now_basic, 'YYYY-MM-DDThh:mm')
+        let now = fecha.format(now_basic, 'YYYY-MM-DDTHH:mm')
         let plus_one_day = new Date(now_basic.getTime() + 24*1000*3600);
-        let pod_fmt = fecha.format(plus_one_day, 'YYYY-MM-DDThh:mm');
-        console.log(now);
-        console.log(pod_fmt);
+        let pod_fmt = fecha.format(plus_one_day, 'YYYY-MM-DDTHH:mm');
         dialog.querySelector('div paper-input[name="start_time"]').value = now;
         dialog.querySelector('div paper-input[name="end_time"]').value = pod_fmt;
       }
