@@ -2,6 +2,9 @@ box: justinribeiro/lighthouse
 build:
   steps:
     - script:
+        name: test
+        code: echo test
+    - script:
         name: install yarn, git
         code: |
           apt-get update && apt-get install -y git && npm install -g yarn
