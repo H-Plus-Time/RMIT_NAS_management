@@ -27,15 +27,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <div class="card">
       <h1>Welcome!</h1>
-      Sign in to create/update your retailer profile, and start pushing out deals. Please note that
+      <p>Sign in to create/update your retailer profile, and start pushing out deals. Please note that
       for security purposes, you should have received an invitation email (this lets us pick and 
       choose who can set up a profile) - if you don't have one, signing in won't do you much good.
+      </p>
+      <p>You can sign in via email, or via your Google account if you have one.</p>
 
       Now, once you're signed in, head over to Profile and hit edit. We need the following information
       from you:
       <ol>
         <li>Your trading name (company/establishment - e.g. Grill'd)</li>
-        <li>Address (as close as is feasible)</li>
+        <li>Address. If you are in, or very close (5m - 10m) to, an RMIT building, entering
+          Building XX should give you a list of autocomplete suggestions.
+        </li>
         <li>A tagline, something that briefly distinguishes your business - e.g. Korean Restaurant, Vegan Delicatessen, etc</li>
         <li>Detailed description: 'Offering a range of delicious snacks and drinks, XYZ'. No more than ~2 tweets.</li>
         <li>Your company logo.</li>
@@ -44,8 +48,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       Optional, but recommended, information:
       <ul>
-        <li>RMIT Building Number (if you're close (5-10m away), its useful to include it)</li>
-        <li>Level - include if you're in an RMIT building or on an upper level exterior area (we still count these); don't if you're at ground level</li>
+        <li>Level - include if you're in an RMIT building. Keep in mind that 'ground level' varies due to the many basement levels
+          in some of the buildings</li>
         <li>A link to your website, if you have one.</li>
         <li>Images of your menus. Up to 7, maximum 3MB each, jpeg or png format,
           minimum resolution 414wx722h, maximum resolution 1080wx1883h</li>
@@ -56,7 +60,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       For the images, its best to keep them about the same aspect ratio as the maximum/minimum
       resolutions (i.e. 4:3 banners, 1:1.8 menus), otherwise they'll exhibit letterboxing.
-
+      <br>
       Once that's all done, you can send out deals via the Offers tab. Creating an offer is quite straightforward:
       <ol>
         <li>Hit the 'Create an offer' button</li>
@@ -67,14 +71,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <li>Enter a start and end datetime - these are prefilled to your current time and 24 hours
           after that.</li>
         <li>Hit submit (the button enables as soon as everything's filled out)</li>
-        <li>Profit</li>
-      <ol>
+      </ol>
 
-      Once you hit submit, if the start time is less than an hour from your current time, a push notification
-      is sent immediately. If not, it'll send 1 hour before the start time.
+      <!--<p>-->
+        Once you hit submit, if the start time is less than an hour from your current time, a push notification
+        is sent immediately. If not, it'll send 1 hour before the start time.
 
-      As always, if you notice any bugs, head over to <a href="https://github.com/H-Plus-Time/rmit-nas-mgmt/issues">Github</a> 
-      and file an issue. Otherwise, enjoy!
+        As always, if you notice any bugs, head over to <a href="https://github.com/H-Plus-Time/rmit-nas-mgmt/issues">Github</a> 
+        and file an issue. Otherwise, enjoy!
+      <!--</p>-->
     </div>
   </template>
 

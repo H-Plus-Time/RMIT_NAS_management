@@ -39,7 +39,9 @@
     "paper-checkbox": "^2.0.0",
     "app-storage": "PolymerElements/app-storage#^2.0.0",
     "iron-a11y-keys": "^2.0.0",
-    "paper-toast": "^2.0.0"
+    "paper-toast": "^2.0.0",
+    "google-map": "2.0-preview",
+    "address-autocomplete": "H-Plus-Time/address-autocomplete#master"
   },
   "devDependencies": {
     "web-component-tester": "6.0.0-prerelease.5"

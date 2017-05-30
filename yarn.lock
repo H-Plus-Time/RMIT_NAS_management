@@ -223,7 +223,7 @@
     "@types/bluebird" "*"
     "@types/node" "*"
 
-"@types/mz@^0.0.31":
+"@types/mz@0.0.31", "@types/mz@^0.0.31":
   version "0.0.31"
   resolved "https://registry.yarnpkg.com/@types/mz/-/mz-0.0.31.tgz#a4d80c082fefe71e40a7c0f07d1e6555bbbc7b52"
   dependencies:
@@ -237,7 +237,7 @@
   version "4.0.30"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-4.0.30.tgz#553f490ed3030311620f88003e7abfc0edcb301e"
 
-"@types/node@6.0.*", "@types/node@^6", "@types/node@^6.0.0", "@types/node@^6.0.31", "@types/node@^6.0.41":
+"@types/node@6.0.*", "@types/node@^6", "@types/node@^6.0.0", "@types/node@^6.0.31", "@types/node@^6.0.41", "@types/node@^6.0.73":
   version "6.0.73"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.73.tgz#85dc4bb6f125377c75ddd2519a1eeb63f0a4ed70"
 
@@ -267,7 +267,7 @@
   dependencies:
     "@types/node" "6.0.*"
 
-"@types/parse5@^2.2.32", "@types/parse5@^2.2.33", "@types/parse5@^2.2.34":
+"@types/parse5@^2.2.32", "@types/parse5@^2.2.34":
   version "2.2.34"
   resolved "https://registry.yarnpkg.com/@types/parse5/-/parse5-2.2.34.tgz#e3870a10e82735a720f62d71dcd183ba78ef3a9d"
   dependencies:
@@ -2173,7 +2173,7 @@ dom5@^1.3.1:
     clone "^1.0.2"
     parse5 "^1.4.1"
 
-dom5@^2.0.0, dom5@^2.0.1, dom5@^2.1.0, dom5@^2.2.0, dom5@^2.3.0:
+dom5@^2.0.0, dom5@^2.0.1, dom5@^2.1.0, dom5@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/dom5/-/dom5-2.3.0.tgz#f8204975bd0dacbbe5b58a8a93ffc1fed0ffcd2a"
   dependencies:
@@ -4753,28 +4753,30 @@ polymer-build@^1.1.0:
     vinyl "^1.1.1"
     vinyl-fs "^2.4.3"
 
-polymer-build@^1.3.0:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/polymer-build/-/polymer-build-1.3.1.tgz#3c5c685fb095ed9228c42eaf63188e10fc760b1a"
+polymer-build@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/polymer-build/-/polymer-build-1.5.0.tgz#55631d3da8ffd0cefd62a5f6565a71614910ea84"
   dependencies:
-    "@types/node" "^4.2.3"
+    "@types/mz" "0.0.31"
+    "@types/node" "^6.0.73"
     "@types/parse5" "^2.2.32"
     "@types/vinyl" "^2.0.0"
     "@types/vinyl-fs" "0.0.28"
     dom5 "^2.2.0"
     multipipe "^1.0.2"
+    mz "^2.6.0"
     parse5 "^2.2.2"
     plylog "^0.5.0"
     polymer-analyzer "^2.0.1"
-    polymer-bundler "2.0.0-pre.18"
+    polymer-bundler "^2.0.0"
     polymer-project-config "^3.0.0"
     sw-precache "^5.1.1"
     vinyl "^1.1.1"
     vinyl-fs "^2.4.3"
 
-polymer-bundler@2.0.0-pre.18:
-  version "2.0.0-pre.18"
-  resolved "https://registry.yarnpkg.com/polymer-bundler/-/polymer-bundler-2.0.0-pre.18.tgz#6f90eb08dec143c136afd6c1bba74467afbefce2"
+polymer-bundler@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/polymer-bundler/-/polymer-bundler-2.0.1.tgz#c5b8e78fffe0c789b9d123cd999ad7cdad6bb50d"
   dependencies:
     clone "^2.1.0"
     command-line-args "^3.0.1"
@@ -4806,9 +4808,9 @@ polymer-bundler@^2.0.0-pre.17:
     polymer-analyzer "2.0.0-alpha.42"
     source-map "^0.5.6"
 
-polymer-cli@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/polymer-cli/-/polymer-cli-1.0.0.tgz#e43bab2559ff498f89a5ac5c97154815a5f2fdf7"
+polymer-cli@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/polymer-cli/-/polymer-cli-1.1.0.tgz#bac1c8510b8fc58b85787f4bb184e5e8149c8172"
   dependencies:
     "@types/babel-core" "^6.7.14"
     "@types/chalk" "^0.4.31"
@@ -4819,7 +4821,6 @@ polymer-cli@^1.0.0:
     "@types/inquirer" "0.0.32"
     "@types/merge-stream" "^1.0.28"
     "@types/mz" "^0.0.31"
-    "@types/parse5" "^2.2.33"
     "@types/request" "0.0.39"
     "@types/resolve" "0.0.4"
     "@types/semver" "^5.3.30"
@@ -4841,7 +4842,6 @@ polymer-cli@^1.0.0:
     command-line-usage "^3.0.1"
     css-slam "^1.1.0"
     del "^2.2.2"
-    dom5 "^2.3.0"
     findup-sync "^0.4.2"
     github "^7.2.1"
     gulp-if "^2.0.0"
@@ -4850,12 +4850,11 @@ polymer-cli@^1.0.0:
     inquirer "^1.0.2"
     merge-stream "^1.0.1"
     mz "^2.6.0"
-    parse5 "^2.2.3"
     plylog "^0.4.0"
     polymer-analyzer "^2.0.0"
-    polymer-build "^1.3.0"
+    polymer-build "^1.5.0"
     polymer-linter "^2.0.2"
-    polymer-project-config "^3.2.0"
+    polymer-project-config "^3.2.1"
     polyserve "^0.19.0"
     request "^2.72.0"
     semver "^5.3.0"
@@ -4892,9 +4891,9 @@ polymer-project-config@^2.0.0:
     minimatch-all "^1.1.0"
     plylog "^0.5.0"
 
-polymer-project-config@^3.0.0, polymer-project-config@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/polymer-project-config/-/polymer-project-config-3.2.0.tgz#83ecc57dcc2cf3a740647475bb13404cf175ee16"
+polymer-project-config@^3.0.0, polymer-project-config@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/polymer-project-config/-/polymer-project-config-3.2.1.tgz#e880e1a4dba436de9ecd85ed421742f6f3e0d1a2"
   dependencies:
     "@types/node" "^6.0.41"
     jsonschema "^1.1.1"
@@ -6026,9 +6025,9 @@ ternary-stream@^2.0.1:
     merge-stream "^1.0.0"
     through2 "^2.0.1"
 
-"test-fixture@github:polymerelements/test-fixture":
+test-fixture@PolymerElements/test-fixture:
   version "3.0.0-rc.1"
-  resolved "https://codeload.github.com/polymerelements/test-fixture/tar.gz/26118ef0467501c33c02316e7016a2837baba10f"
+  resolved "https://codeload.github.com/PolymerElements/test-fixture/tar.gz/26118ef0467501c33c02316e7016a2837baba10f"
 
 test-value@^2.1.0:
   version "2.1.0"
@@ -6272,13 +6271,9 @@ upper-case@^1.1.1:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/upper-case/-/upper-case-1.1.3.tgz#f6b4501c2ec4cdd26ba78be7222961de77621598"
 
-urijs@1.16.1:
+urijs@1.16.1, urijs@^1.16.1:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/urijs/-/urijs-1.16.1.tgz#859ad31890f5f9528727be89f1932c94fb4731e2"
-
-urijs@^1.16.1:
-  version "1.18.10"
-  resolved "https://registry.yarnpkg.com/urijs/-/urijs-1.18.10.tgz#b94463eaba59a1a796036a467bb633c667f221ab"
 
 url-parse-lax@^1.0.0:
   version "1.0.0"

@@ -16,7 +16,8 @@
 <link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
 <link rel="import" href="nas-cards.html">
 <link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
-
+<link rel="import" href="../bower_components/google-map/google-map-elements.html">
+<link rel="import" href="../bower_components/address-autocomplete/address-autocomplete.html">
 <dom-module id="nas-profile">
   <template>
     <style include="paper-material-styles">
@@ -94,6 +95,12 @@
         min-width:300px;
         max-width:450px;
       }
+      google-map {
+        height:400px !important;
+        width:400px !important;
+      }
+      google-map-marker {
+      }
     </style>
     <paper-card heading="Profile - [[profileHeading]]">
       <div class="card-actions">
@@ -107,7 +114,7 @@
             </iron-image>
             <div class="basics">
               <div>
-                <h3 style="display:inline-block;">[[data.name]]</h3>,<i>Level [[data.level]], Building [[data.building]], [[data.address]]</i>
+                <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[computedLocation]]</i>
                 <br>
                 <iron-icon icon="av:web"></iron-icon>
                 <a hidden$="[[!data.website]]" href$="[[data.website]]">
@@ -149,42 +156,21 @@
             <div>
               <div class="basics">
                 <div style="display:inline-block;">
-                  <paper-input name="name" value="{{name}}"
-                    required auto-validate
+                  <paper-input name="name" value="{{fields.name}}"
+                    required auto-validate autofocus
                     label='Name *'
                   ></paper-input>
                   <paper-tooltip offset="0">Your trading name</paper-tooltip>
                 </div>
                 <div style="display:inline-block">
-                  <paper-input name="building" value="{{building}}" 
-                    required auto-validate type="number"
-                    label="Building">
-                  </paper-input>
-                  <paper-tooltip offset="0">If you're within 5-10m of one, please list it</paper-tooltip>
-                </div>
-                <div style="display:inline-block">
-                  <paper-input name="level" level="{{level}}"
-                    required auto-validate type="number"
-                    label="Level *">
-                  </paper-input>
-                  <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
-                </div>
-                <div style="display:inline-block">
-                  <paper-input name="address" value="{{address}}"
-                    required auto-validate
-                    label='Address *'
-                  ></paper-input>
-                  <paper-tooltip offset="0"></paper-tooltip>
-                </div>
-                <div style="display:inline-block">
-                  <paper-input name="website" value="{{website}}"
+                  <paper-input name="website" value="{{fields.website}}"
                     label='Website (optional)'
                   ></paper-input>
                   <paper-tooltip offset="0">If you have one</paper-tooltip>
                 </div>
                 <div style="display:inline-block">
                   <paper-input name="tagline" char-counter maxlength="25"
-                    required auto-validate value="{{tagline}}"
+                    required auto-validate value="{{fields.tagline}}"
                     label='Tagline *'
                   ></paper-input>
                   <paper-tooltip offset="0">A <i>very</i> short description - e.g. Hip Burger Joint</paper-tooltip>
@@ -192,7 +178,7 @@
               </div>
               <div style="display:inline-block">
                 <paper-textarea name="detail" char-counter maxlength="256"
-                  required auto-validate value="{{detail}}"
+                  required auto-validate value="{{fields.detail}}"
                   always-float-label
                   label='Detail *'
                 ></paper-textarea>
@@ -200,11 +186,45 @@
               </div>
             </div>
           </div>
+          <div style="display:flex;justify-content:space-between">
+            <div style="display:flex;flex-direction:column">
+              <div style="display:inline-block">
+                <paper-input name="level" value="{{fields.level}}"
+                  auto-validate type="number"
+                  label="Level (optional)">
+                </paper-input>
+                <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
+              </div>
+              <div style="display:inline-block">
+                <address-autocomplete api-key="[[placesApiKey]]"
+                  latitude="{{fields.latitude}}" longitude="{{fields.longitude}}"
+                  formatted-address="{{fields.address}}" name="{{searchName}}"
+                >
+                </address-autocomplete>
+                <paper-tooltip offset="0">Search for an address, or building by name</paper-tooltip>
+              </div>
+              
+            </div>
+            
+            <template is="dom-if" if="[[active]]">
+              <google-map map="{{map}}" latitude="-37.808272"
+                api-key="AIzaSyBpx_ZIZJAB3ky59xUjIWtMxKowwjy9puU"
+                disable-zoom="true"
+                zoom="15"
+                longitude="144.9626463">
+                <google-map-marker slot="markers" latitude="{{fields.latitude}}"
+                  longitude="{{fields.longitude}}">
+                  <h2>{{searchName}}</h2>
+                  <span>{{fields.address}}</span>
+                </google-map-marker>
+              </google-map>
+            </template>
+          </div>
           <div style="display:flex;flex-direction:column">
+            <file-fire-drop-multi id="banners-input" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Banner Images"></file-fire-drop-multi>
+            <paper-tooltip for="banners-input" offset="0">Upload up to 7 banner images</paper-tooltip>
             <file-fire-drop-multi id="menus-input" uploaded-images="{{menuImages}}" app-name="[[appName]]" prefix="[[retailer]]/menu" label="Menu Images"></file-fire-drop-multi>
             <paper-tooltip for="menus-input" offset="0">Upload up to 7 menu images</paper-tooltip>
-            <file-fire-drop-multi id="banners-input" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Carousel Images"></file-fire-drop-multi>
-            <paper-tooltip for="banners-input" offset="0">Upload up to 7 banner images</paper-tooltip>
             <h3>Operating Hours</h3>
             <div style="display:flex;flex-wrap:wrap;justify-content:center;">
               <template is="dom-repeat" items="[[weekdays]]">
@@ -243,17 +263,31 @@
             type: Boolean,
             value: () => false
           },
+          computedLocation: {
+            type: String,
+            computed: 'computeLocation(data.level, data.address)'
+          },
           profileHeading: {
             type: String,
             computed: 'computeHeading(data.name)'
           },
+          fields: {
+            type: Object,
+            value: () => ({})
+          },
           filledOut: {
             type: Boolean,
-            computed: 'computeFilled(name,address,tagline,detail,logo,awaitingImages)'
+            value: () => false,
+            computed: 'computeFilled(fields.name,fields.address,fields.tagline,fields.detail,logo,fields.awaitingImages)'
           },
           awaitingImages: {
             type: Boolean,
             value: () => false
+          },
+
+          building: {
+            type: Number,
+            computed: 'computeBuilding(searchName)'
           },
           weekdays: {
             type: Array,
@@ -270,8 +304,32 @@
           }
         }
       }
+
+      static get observers() {
+        return [
+          'searchObserver(searchAddress, searchName)'
+        ]
+      }
+
+      searchObserver(address, name) {
+        if(!this.shadowRoot.querySelector('google-map-marker')) {
+          return;
+        }
+        this.shadowRoot.querySelector('google-map-marker')._contentChanged();
+      }
+
+      computeLocation(level, address) {
+        let lvlString = level ? `Level ${level}, ` : '';
+        return ` ${lvlString}${address}`;
+      }
       computeFilled(name,address,tagline,detail,logo,awaitingImages) {
         return name && address && tagline && detail && logo && !awaitingImages;
+      }
+
+      computeBuilding(name) {
+        if(name.toLowerCase().indexOf('building') != -1) {
+          return parseInt(name.replace(/[^0-9\.]/g, ''), 10);
+        }
       }
       deleteDay(e) {
         let day = e.target.day;
@@ -284,12 +342,24 @@
       }
       toggleEdit() {
         this.editing = !this.editing;
+        this.set('active', true);
         Object.keys(this.data).forEach((k) => {
           let elem = this.shadowRoot.getElementById('edit').querySelector(`[name="${k}"]`);
           
-          if (typeof this.data[k] == "string") {
+          if(["latitude", "longitude", "address"].indexOf(k) != -1) {
+            // fine for the form submission half, but doesn't reflect to address-autocomplete UI
+            this.set(`fields.${k}`, this.data[k]);
+            let addressAuto = this.shadowRoot.querySelector('address-autocomplete');
+            let addressParts = this.data.address.split(",");
+            addressAuto.address1 = addressParts[0];
+            let macroAddress = addressParts[1].split(" ");
+            addressAuto.city = macroAddress[1];
+            addressAuto.state = macroAddress[2];
+            addressAuto.zipCode = macroAddress[3];
+          }
+          if (k != "operating_hours" && k != "logo") {
             if(!elem) return;
-            elem.value = this.data[k];
+            this.set(`fields.${k}`, this.data[k]);
           }
 
           if(k == "operating_hours") {
@@ -300,12 +370,6 @@
               this.set(`weekdays.${i}.endTime`, day.end_time);
             }
           }
-          if(k == 'banners') {
-            this.set('bannerImages',this.data[k])
-          }
-          if(k == 'menus') {
-            this.set('menuImages', this.data[k]);
-          }
           if(k == 'logo') {
             this.set('logo', this.data[k]);
             this.shadowRoot.querySelector('file-fire-drop').updateStyles(
@@ -313,6 +377,13 @@
           }
           
         })
+        if(Object.keys(this.data).indexOf("operating_hours") == -1) {
+          // Prepopulate!
+          for(let i = 0; i < 5; i++) {
+            this.set(`weekdays.${i}.startTime`, "09:00");
+            this.set(`weekdays.${i}.endTime`, "17:00");
+          }
+        }
       }
 
       recordLogo(e) {
@@ -321,34 +392,19 @@
           {"--file-fire-dropzone-background-image": `url(${this.logo})`});
       }
       submitProfileChanges() {
-        let formRoot = this.shadowRoot.getElementById('edit');
-        let fields = Array.from(formRoot.querySelectorAll('div > div.basics')).reduce((a, b) => {
-          return a.concat(Array.from(b.children))
-        }, []);
-        let formData = fields.filter((elem) => {
-          return elem.hasAttribute('name')
-        }).map((elem) => {
-          let obj = {};
-          obj[elem.name] = elem.value;
-          return obj;
-        }).reduce((a, b) => Object.assign(a, b), {});
-        // TODO: grab all the images and special inputs
-        let timeRangeData = Array.from(formRoot.querySelectorAll('time-range-input')).map((elem) => {
-          return {
-            start_time: elem.startTime,
-            end_time: elem.endTime,
-            name: elem.name
-          };
-        }).filter((rangeObj) => {
-          return rangeObj.start_time && rangeObj.end_time && rangeObj.name;
-        });
-        console.log(formRoot);
+        console.log(this.fields);
+        let formData = this.fields;
         formData['menus'] = this.shadowRoot.getElementById('menus-input').uploadedImages;
         formData['banners'] = this.shadowRoot.getElementById('banners-input').uploadedImages;
         if(this.logo) {
           formData['logo'] = this.logo;
         }
-        
+        if(this.building) {
+          formData['building'] = this.building;
+        }
+        let timeRangeData = this.weekdays.filter(day => day.startTime && day.endTime).map(day => {
+          return {start_time: day.startTime, end_time: day.endTime, name: day.name}
+        });
         formData['operating_hours'] = timeRangeData;
         this.dispatchEvent(new CustomEvent('update-profile', {
           detail: formData,

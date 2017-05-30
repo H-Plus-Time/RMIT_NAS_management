@@ -213,11 +213,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             on-create-offer="createOffer"></nas-offers>
           <nas-admin name="admin"
             data="[[retailersData]]"
+            on-create-admin="createAdmin"
             on-delete-retailer="deleteRetailer"
             on-create-retailer="createRetailer"></nas-admin>
           <nas-profile name="profile"
             data="[[profileData]]"
             retailer="[[user.uid]]"
+            places-api-key="[[placesApiKey]]"
             on-update-profile="updateProfile"
             app-name="nas-app"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
