@@ -88,8 +88,7 @@
                     year: 'numeric', month: 'short', day: 'numeric',
                     hour: 'numeric', minute: 'numeric',
                 };
-                let d = new Date(time);
-                return new Intl.DateTimeFormat('en-US', opts).format(d*1000);
+                return new Intl.DateTimeFormat('en-US', opts).format(time*1000);
             }
             deleteOffer() {
                 console.log(this.data['$key'])

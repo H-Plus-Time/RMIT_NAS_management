@@ -17,6 +17,7 @@
 <link rel="import" href="nas-cards.html">
 <link rel="import" href="../bower_components/paper-styles/element-styles/paper-material-styles.html">
 <link rel="import" href="../bower_components/google-map/google-map-elements.html">
+<link rel="import" href="../bower_components/paper-input-location/paper-input-location.html">
 <link rel="import" href="../bower_components/address-autocomplete/address-autocomplete.html">
 <dom-module id="nas-profile">
   <template>
@@ -196,11 +197,13 @@
                 <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
               </div>
               <div style="display:inline-block">
-                <address-autocomplete api-key="[[placesApiKey]]"
-                  latitude="{{fields.latitude}}" longitude="{{fields.longitude}}"
-                  formatted-address="{{fields.address}}" name="{{searchName}}"
-                >
-                </address-autocomplete>
+                <paper-input-location maps-api-key="[[placesApiKey]]"
+                  latitude="{{fields.latitude}}"
+                  longitude="{{fields.longitude}}"
+                  place="{{place}}"
+                  query="{{locationQuery}}"
+                  location-name="{{fields.address}}"
+                  label="RMIT Building or Address"></paper-input-location>
                 <paper-tooltip offset="0">Search for an address, or building by name</paper-tooltip>
               </div>
               
@@ -214,7 +217,7 @@
                 longitude="144.9626463">
                 <google-map-marker slot="markers" latitude="{{fields.latitude}}"
                   longitude="{{fields.longitude}}">
-                  <h2>{{searchName}}</h2>
+                  <h2>{{locationName}}</h2>
                   <span>{{fields.address}}</span>
                 </google-map-marker>
               </google-map>
@@ -287,7 +290,7 @@
 
           building: {
             type: Number,
-            computed: 'computeBuilding(searchName)'
+            computed: 'computeBuilding(place.name)'
           },
           weekdays: {
             type: Array,
@@ -307,7 +310,7 @@
 
       static get observers() {
         return [
-          'searchObserver(searchAddress, searchName)'
+          'searchObserver(fields.address, locationName)'
         ]
       }
 
@@ -327,6 +330,7 @@
       }
 
       computeBuilding(name) {
+        if(!name) { return; }
         if(name.toLowerCase().indexOf('building') != -1) {
           return parseInt(name.replace(/[^0-9\.]/g, ''), 10);
         }
@@ -349,13 +353,7 @@
           if(["latitude", "longitude", "address"].indexOf(k) != -1) {
             // fine for the form submission half, but doesn't reflect to address-autocomplete UI
             this.set(`fields.${k}`, this.data[k]);
-            let addressAuto = this.shadowRoot.querySelector('address-autocomplete');
-            let addressParts = this.data.address.split(",");
-            addressAuto.address1 = addressParts[0];
-            let macroAddress = addressParts[1].split(" ");
-            addressAuto.city = macroAddress[1];
-            addressAuto.state = macroAddress[2];
-            addressAuto.zipCode = macroAddress[3];
+            this.locationQuery = this.data.address;
           }
           if (k != "operating_hours" && k != "logo") {
             if(!elem) return;

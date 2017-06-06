@@ -170,6 +170,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _handleUpload(e) {
         this.set('fields.image', e.detail.urls[0].url);
+        console.log(e.detail.urls[0].url);
+        this.shadowRoot.querySelector('file-fire-drop').updateStyles({"--file-fire-dropzone-background-image": `url(${e.detail.urls[0].url})`});
       }
 
       createOffer(e) {

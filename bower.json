@@ -41,7 +41,8 @@
     "iron-a11y-keys": "^2.0.0",
     "paper-toast": "^2.0.0",
     "google-map": "GoogleWebComponents/google-map#2.0-preview",
-    "address-autocomplete": "H-Plus-Time/address-autocomplete#master"
+    "address-autocomplete": "H-Plus-Time/address-autocomplete#master",
+    "paper-input-location": "H-Plus-Time/paper-input-location#master"
   },
   "devDependencies": {
     "web-component-tester": "6.0.0-prerelease.5"
