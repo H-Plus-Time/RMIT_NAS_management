@@ -235,8 +235,8 @@
                   <h3>[[item.name]]</h3>
                   <paper-icon-button icon="delete" day="[[item.name]]" on-tap="deleteDay" style="position:absolute;top:0;right:0"></paper-icon-button>
                   <time-range-input style="flex-direction:column"
-                    start-time$="[[item.startTime]]"
-                    end-time$="[[item.endTime]]"
+                    start-time="{{item.startTime}}"
+                    end-time="{{item.endTime}}"
                     name$="[[item.name]]"
                   ></time-range-input>
                 </div>
@@ -294,6 +294,7 @@
           },
           weekdays: {
             type: Array,
+            notify: true,
             value: () => {
               return [
                 {name: 'MON'}, {name: 'TUES'}, {name: 'WED'},
@@ -344,15 +345,25 @@
       computeHeading(name) {
         return name ? name : 'New Retailer';
       }
+
       toggleEdit() {
         this.editing = !this.editing;
-        this.set('active', true);
+        // Google Maps needs to be visible on initialization
+        // Removal of the hidden attribute on the editing page parent
+        // may or may not complete before the google-map element starts
+        // its attachedCallback
+        this.set('active', this.editing);
+        if(this.editing) {
+          this.prepopulateForm();
+        }
+      }
+      prepopulateForm() {
         Object.keys(this.data).forEach((k) => {
-          let elem = this.shadowRoot.getElementById('edit').querySelector(`[name="${k}"]`);
+          let elem = this.$['edit'].querySelector(`[name="${k}"]`);
           
           if(["latitude", "longitude", "address"].indexOf(k) != -1) {
-            // fine for the form submission half, but doesn't reflect to address-autocomplete UI
             this.set(`fields.${k}`, this.data[k]);
+            // reflect to paper-input-location query
             this.locationQuery = this.data.address;
           }
           if (k != "operating_hours" && k != "logo") {
@@ -392,14 +403,16 @@
       submitProfileChanges() {
         console.log(this.fields);
         let formData = this.fields;
-        formData['menus'] = this.shadowRoot.getElementById('menus-input').uploadedImages;
-        formData['banners'] = this.shadowRoot.getElementById('banners-input').uploadedImages;
+        formData['menus'] = this.$['menus-input'].uploadedImages;
+        formData['banners'] = this.$['banners-input'].uploadedImages;
         if(this.logo) {
           formData['logo'] = this.logo;
         }
         if(this.building) {
           formData['building'] = this.building;
         }
+        console.log(this.weekdays)
+        console.log(this.fields)
         let timeRangeData = this.weekdays.filter(day => day.startTime && day.endTime).map(day => {
           return {start_time: day.startTime, end_time: day.endTime, name: day.name}
         });

@@ -1,5 +1,5 @@
 [![wercker status](https://app.wercker.com/status/34db6f6de7010fe0ae79c1b7a459a1c7/s/master "wercker status")](https://app.wercker.com/project/byKey/34db6f6de7010fe0ae79c1b7a459a1c7)
-# RMIT Food Deals Management
+# RMIT Promos Management
 
 ## Deployment
 Install bower and polymer-cli globally via npm or yarn, i.e: 

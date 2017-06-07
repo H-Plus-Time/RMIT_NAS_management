@@ -187,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="nas-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>RMIT Deals Management</div>
+            <div main-title>RMIT Promos Management</div>
               <paper-tabs hidden$="[[smallScreen]]">
                 <template is="dom-repeat" items="[[menuItems]]">
                   <paper-tab link>
@@ -321,17 +321,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       filterMenu(isAdmin, isRetailer) {
         if(isAdmin) {
           return [
-            {"href": "howto", "text": "Documentation"},
+            {"href": "howto", "text": "Howto"},
             {"href": "admin", "text": "Admin"}
           ];
         } else if (isRetailer) {
           return [
-            {"href": "howto", "text": "Documentation"},
+            {"href": "howto", "text": "Howto"},
             {"href": "profile", "text": "Profile"},
             {"href": "offers", "text": "Offers"},
           ];
         } else {
-          return [{"href": "howto", "text": "Documentation"}];
+          return [{"href": "howto", "text": "Howto"}];
         }
       }
 
