@@ -89,6 +89,7 @@
                     let newEntry = {alt: `#${this.iter}`, src: url.url};
                     this.push('uploadedImages', newEntry);
                 });
+                this.shadowRoot.querySelector('file-fire-drop').shadowRoot.querySelector('input').value = '';
             }
             ready() {
                 super.ready();
@@ -99,8 +100,9 @@
                 return uploadedImages.length;
             }
 
-            removeImg(idx) {
-                this.splice('uploadedImages', idx, 1);
+            removeImg(e) {
+                e.preventDefault()                
+                this.splice('uploadedImages', e.target.idx, 1);
             }
             
         }

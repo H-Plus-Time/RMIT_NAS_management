@@ -108,40 +108,45 @@
       </div>
       <div class="card-content">
         <div hidden$="[[editing]]" style="display:flex;flex-direction:column">
-          <div style="display:flex;flex-direction:row">
-            <iron-image src="[[data.logo]]" class="logo"
-              sizing="contain" style="background:light-grey">
-            </iron-image>
-            <div class="basics">
-              <div>
-                <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[computedLocation]]</i>
-                <br>
-                <iron-icon icon="av:web"></iron-icon>
-                <a hidden$="[[!data.website]]" href$="[[data.website]]">
-                    [[data.website]]
-                </a>
-                <div>[[data.tagline]]</div>
-                <p><i>Detail: </i>[[data.detail]]</p>
+          <template is="dom-if" if="[[data]]">
+            <div style="display:flex;flex-direction:row">
+              <iron-image src="[[data.logo]]" class="logo"
+                sizing="contain" style="background:light-grey">
+              </iron-image>
+              <div class="basics">
+                <div>
+                  <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[computedLocation]]</i>
+                  <br>
+                  <iron-icon icon="av:web"></iron-icon>
+                  <a hidden$="[[!data.website]]" href$="[[data.website]]">
+                      [[data.website]]
+                  </a>
+                  <div>[[data.tagline]]</div>
+                  <p><i>Detail: </i>[[data.detail]]</p>
+                </div>
               </div>
             </div>
-          </div>
-          <h3>Operating Hours</h3>
-          <div class="times-output">
-            <multi-time-range-output times="[[data.operating_hours]]"></multi-time-range-output>
-          </div>
-          <div hidden$="[[!data.banners]]">
-            <h3>Banner Images</h3>
-            <template id="menus" is="dom-repeat" items="[[data.banners]]">
-              <iron-image class="banner" sizing="contain" preload
-                src="[[item.src]]" alt="[[item.alt]]"></iron-image>
-            </template>
-          </div>
-          <div hidden$="[[!data.menus]]">
-            <h3>Menu Images</h3>
-            <template id="banners" is="dom-repeat" items="[[data.menus]]">
-              <iron-image class="menu" sizing="contain" preload
-                src="[[item.src]]" alt="[[item.alt]]"></iron-image>
-            </template>
+            <h3>Operating Hours</h3>
+            <div class="times-output">
+              <multi-time-range-output times="[[data.operating_hours]]"></multi-time-range-output>
+            </div>
+            <div hidden$="[[!data.banners]]">
+              <h3>Banner Images</h3>
+              <template id="menus" is="dom-repeat" items="[[data.banners]]">
+                <iron-image class="banner" sizing="contain" preload
+                  src="[[item.src]]" alt="[[item.alt]]"></iron-image>
+              </template>
+            </div>
+            <div hidden$="[[!data.menus]]">
+              <h3>Menu Images</h3>
+              <template id="banners" is="dom-repeat" items="[[data.menus]]">
+                <iron-image class="menu" sizing="contain" preload
+                  src="[[item.src]]" alt="[[item.alt]]"></iron-image>
+              </template>
+            </div>
+          </template>
+          <div hidden$="[[data]]">
+            Your profile appears to be blank, please edit your profile
           </div>
         </div>
         <div id="edit" hidden$="[[!editing]]" style="display:flex;flex-direction:column">
@@ -353,8 +358,12 @@
         // its attachedCallback
         this.set('active', this.editing);
         if(this.editing) {
+          this.wipeImageUploadList();
           this.prepopulateForm();
         }
+      }
+      wipeImageUploadList() {
+        
       }
       prepopulateForm() {
         Object.keys(this.data).forEach((k) => {
@@ -364,6 +373,12 @@
             this.set(`fields.${k}`, this.data[k]);
             // reflect to paper-input-location query
             this.locationQuery = this.data.address;
+          }
+          if(k == 'menus') {
+            this.set('menuImages', this.data[k]);
+          }
+          if(k == 'banners') {
+            this.set('bannerImages', this.data[k]);
           }
           if (k != "operating_hours" && k != "logo") {
             if(!elem) return;
