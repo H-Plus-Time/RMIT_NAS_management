@@ -33,4 +33,4 @@ deploy:
         name: firebase deploy
         code: |
           npm install -g yarn && yarn global add firebase-tools
-          firebase deploy build/unbundled --project=nas-app --token "$FIREBASE_TOKEN"
+          firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"
