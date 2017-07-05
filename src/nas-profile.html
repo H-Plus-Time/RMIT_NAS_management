@@ -228,9 +228,9 @@
             </template>
           </div>
           <div style="display:flex;flex-direction:column">
-            <file-fire-drop-multi id="banners-input" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Banner Images"></file-fire-drop-multi>
+            <file-fire-drop-multi id="banners-input" iter="[[bannerImages.length]]" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Banner Images"></file-fire-drop-multi>
             <paper-tooltip for="banners-input" offset="0">Upload up to 7 banner images</paper-tooltip>
-            <file-fire-drop-multi id="menus-input" uploaded-images="{{menuImages}}" app-name="[[appName]]" prefix="[[retailer]]/menu" label="Menu Images"></file-fire-drop-multi>
+            <file-fire-drop-multi id="menus-input" iter="[[bannerImages.length]]" uploaded-images="{{menuImages}}" app-name="[[appName]]" prefix="[[retailer]]/menu" label="Menu Images"></file-fire-drop-multi>
             <paper-tooltip for="menus-input" offset="0">Upload up to 7 menu images</paper-tooltip>
             <h3>Operating Hours</h3>
             <div style="display:flex;flex-wrap:wrap;justify-content:center;">

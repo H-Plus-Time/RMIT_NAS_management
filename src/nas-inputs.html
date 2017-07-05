@@ -46,7 +46,12 @@
                     <img src$="[[item.src]]">
                 </div>
             </template>
-            <file-fire-drop app-name="[[appName]]" path="/[[prefix]]/[[iter]]" src-file over-write max-dimension="200" progress="{{progress}}" placeholder="{{base64}}" files="{{images}}" always-show>
+            <file-fire-drop app-name="[[appName]]"
+                path="/[[prefix]]/[[timestamp]]/[[iter]]"
+                src-file over-write max-dimension="200"
+                progress="{{progress}}" placeholder="{{base64}}"
+                on-drop="echo"
+                files="{{images}}" always-show>
             </file-fire-drop>
         </div>
     </template>
@@ -79,16 +84,22 @@
                     iter: {
                         type: Number,
                         value: () => 0,
+                    },
+                    timestamp: {
+                        type: Number,
+                        value: () => new Date().getTime()/1000
                     }
                 }
             }
             _handleUpload(e) {
                 console.log(e);
-                this.set('iter', this.iter +1);
+                // this.set('iter', this.iter +1);
                 e.detail.urls.forEach(url => {
                     let newEntry = {alt: `#${this.iter}`, src: url.url};
                     this.push('uploadedImages', newEntry);
                 });
+                this.set('timestamp', new Date().getTime()/1000);
+                // reset the file-fire-drop FileList (its readonly, so that's all you can do to it)
                 this.shadowRoot.querySelector('file-fire-drop').shadowRoot.querySelector('input').value = '';
             }
             ready() {
