@@ -17,6 +17,7 @@
     "manifest.json",
     "keys.js",
     "bower_components/login-fire/*.json",
+    "bower_components/web-animations-js/web-animations-next.min.js",
     "bower_components/webcomponentsjs/*.js"
   ],
   "lint": {
