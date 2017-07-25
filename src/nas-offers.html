@@ -87,6 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value="{{fields.start_time}}"
             required auto-validate type="datetime-local"
             label="Start Time"
+            min="[[currentDateTime]]"
           ></paper-input>
           <paper-tooltip offset="0">When the offer will be available from</paper-tooltip>
         </div>
@@ -94,6 +95,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-input name="end_time" value="{{fields.end_time}}"
             required auto-validate type="datetime-local"
             label="End Time"
+            min="[[currentDateTime]]"
           ></paper-input>
           <paper-tooltip offset="0">When the offer expires</paper-tooltip>
         </div>
@@ -141,6 +143,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Boolean,
             value: () => false,
             computed: 'computeFilledOut(fields.title, fields.description,fields.tagline,fields.image)'
+          },
+          currentDateTime: {
+            type: String,
+            computed: 'computeMin(now)'
           }
         }
       }
@@ -151,6 +157,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       compareOfferTimes(a,b) {
         return  a.start_time < b.start_time;
+      }
+      
+      computeMin(now) {
+        return fecha.format(new Date(now*1000), "YYYY-MM-DD\THH:mm")
       }
 
       openDialog() {
