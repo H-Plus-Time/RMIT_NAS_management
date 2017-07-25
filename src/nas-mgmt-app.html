@@ -139,6 +139,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app-name="nas-app"
       path="retailers"
       data="{{retailersData}}">
+    <firebase-query id="invitees-query"
+      app-name="nas-app"
+      path="invitees"
+      data="{{inviteesData}}">
+    </firebase-query>
     </firebase-query>
     <firebase-document
       path="retailers"
@@ -207,7 +212,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             retailer="[[user.uid]]"
             on-create-offer="createOffer"></nas-offers>
           <nas-admin name="admin"
-            data="[[retailersData]]"
+            retailers="[[retailersData]]"
+            invitees="[[inviteesData]]"
             on-create-admin="createAdmin"
             on-delete-retailer="deleteRetailer"
             on-create-retailer="createRetailer"></nas-admin>
@@ -216,6 +222,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             retailer="[[user.uid]]"
             places-api-key="[[placesApiKey]]"
             on-update-profile="updateProfile"
+            route="{{subroute}}"
             app-name="nas-app"></nas-profile>
           <nas-view404 name="view404"></nas-view404>
         </iron-pages>
@@ -336,7 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _routePageChanged(page) {
         // Polymer 2.0 will call with `undefined` on initialization.
-        // Ignore until we are properly called with a string.
+        // Ignore until this is properly called with a string.
         if (page === undefined) {
           this.page = 'howto';
           return;
@@ -350,9 +357,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else if (this.page == 'profile' && !this.isRetailer) {
           // this.set('route.path', '/');
         } else {
-          if(this.page == "profile" && Object.keys(this.profileData).length == 0) {
-            // this.shadowRoot.querySelector('nas-profile').toggleEdit()
-          }
         }
 
         // Close a non-persistent drawer when the page & route are changed.
@@ -431,6 +435,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         db.ref(`retailers/${this.user.uid}/profile`).update(payload);
         db.ref(`retailers/${this.user.uid}/status`).set('active');
         db.ref(`retailers/${this.user.uid}/email`).set(this.user.email);
+        console.log('setting to profile/view')
+        this.set('route.path', '/profile/view')
+        console.log(this.route.path)
       }
     }
 

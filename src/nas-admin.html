@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
-
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="nas-cards.html">
 <link rel="import" href="shared-styles.html">
 
@@ -42,14 +42,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background:white;
       }
     </style>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
+      on-keys-pressed="onEnter"></iron-a11y-keys>
     <div class="invite-box">
-      <paper-input type="email" value="{{newRetailerEmail}}" auto-validate invalid="{{invalid}}" label="Retailer Email">
+      <paper-input type="email" id="email"
+        value="{{newRetailerEmail}}"
+        auto-validate invalid="{{invalid}}"
+        label="Retailer Email">
         <iron-icon slot="prefix" icon="mail"></iron-icon>
         <!--<paper-icon-button slot="suffix" icon="clear" alt="clear" title="clear"></paper-icon-button>-->
       </paper-input>
       <paper-icon-button icon="send" disabled$="[[invalid]]" on-tap="createRetailer"></paper-icon-button>
     </div>
-    <template is="dom-repeat" id="list-container" items="[[data]]">
+    <template is="dom-repeat" id="invitees-list" items="[[filteredInvitees]]">
+      <!-- [[item]] -->
+       <user-card email="[[item]]" status="pending"></user-card> 
+    </template>
+    <template is="dom-repeat" id="list-container" items="[[retailers]]">
       <user-card key="[[item.$key]]" email="[[item.email]]"
         data$="[[item.profile]]" status="[[item.status]]"></user-card>
     </template>
@@ -60,7 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       static get is() { return 'nas-admin'; }
       static get properties() {
         return {
-          data: {
+          retailers: {
             type: Array,
             value: () => {
               return [
@@ -68,11 +77,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               ]
             }
           },
+          invitees: Array,
+          filteredInvitees: {
+            type: Array
+          },
           invalid: {
             type: Boolean,
             value: () => true
+          },
+          target: {
+            type: Object,
+            value: function() { return this.$.email}
           }
         }
+      }
+
+      static get observers() {
+        return [
+          'onlyPending(invitees.*, retailers.*)'
+        ]
       }
 
       createRetailer() {
@@ -80,6 +103,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           {detail: {email: this.newRetailerEmail}, bubbles: true}));
         
         this.set('newRetailerEmail', '');
+      }
+      onEnter() {
+        this.createRetailer();
+      }
+      onlyPending(invitees, retailers) {
+        invitees = invitees.base
+        retailers = retailers.base
+        console.log(invitees)
+        console.log(retailers)
+        if(!(invitees || retailers)) {
+          return []
+        }
+        console.log(retailers.find((retailer) => retailer.email == "ryanjiang5@gmail.com"))
+        this.set('filteredInvitees', invitees.map(inv => inv['$key'].replace(/\,/g, '.'))
+          .filter((email) => retailers.findIndex((r) => r.email == email) == -1))
       }
     }
 

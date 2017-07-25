@@ -76,6 +76,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
     <nas-mgmt-app></nas-mgmt-app>
     <script src="/keys.js"></script>
+    <script>
+      // custom polyfill logic
+      // Web Animations staging-2 features
+      if(!window.KeyframeEffect) {
+        let kfpoly = document.createElement('script');
+        kfpoly.src = "/bower_components/web-animations-js/web-animations-next.min.js"
+        document.body.appendChild(kfpoly);
+      }
+    </script>
     <!--polyfills we can wait for-->
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en"></script>
 

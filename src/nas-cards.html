@@ -139,6 +139,7 @@
             <iron-icon icon="delete"></iron-icon>
             Delete
         </paper-button>
+        <h2 hidden$="[[active]]">Pending</h2>
     </template>
     <script>
         class UserCard extends Polymer.Element {
@@ -151,7 +152,8 @@
                     active: {
                         type: Boolean,
                         computed: 'computeActive(status)'
-                    }
+                    },
+                    status: String
                 }
             }
             computeActive(status) {

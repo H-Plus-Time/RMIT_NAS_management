@@ -1,5 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-
+<link rel="import" href="../bower_components/polymer/lib/utils/render-status.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 
@@ -12,6 +12,8 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="nas-inputs.html">
 <link rel="import" href="../bower_components/file-fire/file-fire-drop.html">
 <link rel="import" href="nas-cards.html">
@@ -101,119 +103,133 @@
       }
       google-map-marker {
       }
+      .emptyData {
+        text-align:center;
+      }
+      .editButton {
+        background: #000053;
+        color:white;
+        font-weight:900;
+      }
     </style>
+    <app-route
+      route="{{route}}"
+      pattern="/:mode"
+      data="{{routeData}}">
+    </app-route>
     <paper-card heading="Profile - [[profileHeading]]">
       <div class="card-actions">
-        <paper-button edit on-tap="toggleEdit">Edit</paper-button>
+        <paper-button class="editButton" on-tap="toggleEdit" hidden$="[[emptyData]]">Edit</paper-button>
       </div>
       <div class="card-content">
-        <div hidden$="[[editing]]" style="display:flex;flex-direction:column">
-          <template is="dom-if" if="[[data]]">
-            <div style="display:flex;flex-direction:row">
-              <iron-image src="[[data.logo]]" class="logo"
-                sizing="contain" style="background:light-grey">
-              </iron-image>
-              <div class="basics">
-                <div>
-                  <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[computedLocation]]</i>
-                  <br>
-                  <iron-icon icon="av:web"></iron-icon>
-                  <a hidden$="[[!data.website]]" href$="[[data.website]]">
-                      [[data.website]]
-                  </a>
-                  <div>[[data.tagline]]</div>
-                  <p><i>Detail: </i>[[data.detail]]</p>
+        <iron-pages selected="[[routeData.mode]]" attr-for-selected="name" fallback-selection="view">
+          <div name="view" style="display:flex;flex-direction:column">
+            <div hidden$="[[emptyData]]">
+              <div style="display:flex;flex-direction:row">
+                <iron-image src="[[data.logo]]" class="logo"
+                  sizing="contain" style="background:light-grey">
+                </iron-image>
+                <div class="basics">
+                  <div>
+                    <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[computedLocation]]</i>
+                    <br>
+                    <iron-icon icon="av:web"></iron-icon>
+                    <a hidden$="[[!data.website]]" href$="[[data.website]]">
+                        [[data.website]]
+                    </a>
+                    <div>[[data.tagline]]</div>
+                    <p><i>Detail: </i>[[data.detail]]</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <h3>Operating Hours</h3>
-            <div class="times-output">
-              <multi-time-range-output times="[[data.operating_hours]]"></multi-time-range-output>
-            </div>
-            <div hidden$="[[!data.banners]]">
-              <h3>Banner Images</h3>
-              <template id="menus" is="dom-repeat" items="[[data.banners]]">
-                <iron-image class="banner" sizing="contain" preload
-                  src="[[item.src]]" alt="[[item.alt]]"></iron-image>
-              </template>
-            </div>
-            <div hidden$="[[!data.menus]]">
-              <h3>Menu Images</h3>
-              <template id="banners" is="dom-repeat" items="[[data.menus]]">
-                <iron-image class="menu" sizing="contain" preload
-                  src="[[item.src]]" alt="[[item.alt]]"></iron-image>
-              </template>
-            </div>
-          </template>
-          <div hidden$="[[data]]">
-            Your profile appears to be blank, please edit your profile
-          </div>
-        </div>
-        <div id="edit" hidden$="[[!editing]]" style="display:flex;flex-direction:column">
-          <div id="basic-section" style="display:flex;flex-direction:row">
-            <file-fire-drop class="logo" app-name="[[appName]]"
-              path="/[[retailer]]/logo" src-file over-write
-              max-dimension="200" progress="{{progress}}"
-              placeholder="{{base64}}" files="{{images}}"
-              always-show on-upload="recordLogo" name="logo"
-            >
-            </file-fire-drop>
-            <div>
-              <div class="basics">
-                <div style="display:inline-block;">
-                  <paper-input name="name" value="{{fields.name}}"
-                    required auto-validate autofocus
-                    label='Name *'
-                  ></paper-input>
-                  <paper-tooltip offset="0">Your trading name</paper-tooltip>
-                </div>
-                <div style="display:inline-block">
-                  <paper-input name="website" value="{{fields.website}}"
-                    label='Website (optional)'
-                  ></paper-input>
-                  <paper-tooltip offset="0">If you have one</paper-tooltip>
-                </div>
-                <div style="display:inline-block">
-                  <paper-input name="tagline" char-counter maxlength="65"
-                    required auto-validate value="{{fields.tagline}}"
-                    label='Tagline *'
-                  ></paper-input>
-                  <paper-tooltip offset="0">A <i>very</i> short description - e.g. Hip Burger Joint</paper-tooltip>
-                </div>
+              <h3>Operating Hours</h3>
+              <div class="times-output">
+                <multi-time-range-output times="[[data.operating_hours]]"></multi-time-range-output>
               </div>
-              <div style="display:inline-block">
-                <paper-textarea name="detail" char-counter maxlength="600"
-                  required auto-validate value="{{fields.detail}}"
-                  always-float-label
-                  label='Detail *'
-                ></paper-textarea>
-                <paper-tooltip offset="0" position="top">A longer description of your establishment</paper-tooltip>
+              <div hidden$="[[!data.banners]]">
+                <h3>Banner Images</h3>
+                <template id="menus" is="dom-repeat" items="[[data.banners]]">
+                  <iron-image class="banner" sizing="contain" preload
+                    src="[[item.src]]" alt="[[item.alt]]"></iron-image>
+                </template>
               </div>
+              <div hidden$="[[!data.menus]]">
+                <h3>Menu Images</h3>
+                <template id="banners" is="dom-repeat" items="[[data.menus]]">
+                  <iron-image class="menu" sizing="contain" preload
+                    src="[[item.src]]" alt="[[item.alt]]"></iron-image>
+                </template>
+              </div>
+            </div>
+            <div hidden$="[[!emptyData]]" class="emptyData">
+              <h2>Your profile appears to be blank, please edit your profile</h2>
+              <paper-button class="editButton" on-tap="toggleEdit">Edit</paper-button>
             </div>
           </div>
-          <div style="display:flex;justify-content:space-between">
-            <div style="display:flex;flex-direction:column">
-              <div style="display:inline-block">
-                <paper-input name="level" value="{{fields.level}}"
-                  auto-validate type="number"
-                  label="Level (optional)">
-                </paper-input>
-                <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
+          <div id="edit" name="edit" style="display:flex;flex-direction:column">
+            <div id="basic-section" style="display:flex;flex-direction:row">
+              <file-fire-drop class="logo" app-name="[[appName]]"
+                path="/[[retailer]]/logo" src-file over-write
+                max-dimension="200" progress="{{progress}}"
+                placeholder="{{base64}}" files="{{images}}"
+                always-show on-upload="recordLogo" name="logo"
+              >
+              </file-fire-drop>
+              <div>
+                <div class="basics">
+                  <div style="display:inline-block;">
+                    <paper-input name="name" value="{{fields.name}}"
+                      required auto-validate autofocus
+                      label='Name *'
+                    ></paper-input>
+                    <paper-tooltip offset="0">Your trading name</paper-tooltip>
+                  </div>
+                  <div style="display:inline-block">
+                    <paper-input name="website" value="{{fields.website}}"
+                      label='Website (optional)'
+                    ></paper-input>
+                    <paper-tooltip offset="0">If you have one</paper-tooltip>
+                  </div>
+                  <div style="display:inline-block">
+                    <paper-input name="tagline" char-counter maxlength="65"
+                      required auto-validate value="{{fields.tagline}}"
+                      label='Tagline *'
+                    ></paper-input>
+                    <paper-tooltip offset="0">A <i>very</i> short description - e.g. Hip Burger Joint</paper-tooltip>
+                  </div>
+                </div>
+                <div style="display:inline-block">
+                  <paper-textarea name="detail" char-counter maxlength="600"
+                    required auto-validate value="{{fields.detail}}"
+                    always-float-label
+                    label='Detail *'
+                  ></paper-textarea>
+                  <paper-tooltip offset="0" position="top">A longer description of your establishment</paper-tooltip>
+                </div>
               </div>
-              <div style="display:inline-block">
-                <paper-input-location maps-api-key="[[placesApiKey]]"
-                  latitude="{{fields.latitude}}"
-                  longitude="{{fields.longitude}}"
-                  place="{{place}}"
-                  query="{{locationQuery}}"
-                  location-name="{{fields.address}}"
-                  label="RMIT Building or Address"></paper-input-location>
-                <paper-tooltip offset="0">Search for an address, or building by name</paper-tooltip>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <div style="display:flex;flex-direction:column">
+                <div style="display:inline-block">
+                  <paper-input name="level" value="{{fields.level}}"
+                    auto-validate type="number"
+                    label="Level (optional)">
+                  </paper-input>
+                  <paper-tooltip offset="0">Don't list if you're not inside</paper-tooltip>
+                </div>
+                <div style="display:inline-block">
+                  <paper-input-location maps-api-key="[[placesApiKey]]"
+                    latitude="{{fields.latitude}}"
+                    longitude="{{fields.longitude}}"
+                    place="{{place}}"
+                    query="{{locationQuery}}"
+                    location-name="{{fields.address}}"
+                    label="RMIT Building or Address"></paper-input-location>
+                  <paper-tooltip offset="0">Search for an address, or building by name</paper-tooltip>
+                </div>
+                
               </div>
               
-            </div>
-            
-            <template is="dom-if" if="[[active]]">
               <google-map map="{{map}}" latitude="-37.808272"
                 api-key="AIzaSyBpx_ZIZJAB3ky59xUjIWtMxKowwjy9puU"
                 disable-zoom="true"
@@ -225,31 +241,33 @@
                   <span>{{fields.address}}</span>
                 </google-map-marker>
               </google-map>
-            </template>
-          </div>
-          <div style="display:flex;flex-direction:column">
-            <file-fire-drop-multi id="banners-input" iter="[[bannerImages.length]]" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Banner Images"></file-fire-drop-multi>
-            <paper-tooltip for="banners-input" offset="0">Upload up to 7 banner images</paper-tooltip>
-            <file-fire-drop-multi id="menus-input" iter="[[bannerImages.length]]" uploaded-images="{{menuImages}}" app-name="[[appName]]" prefix="[[retailer]]/menu" label="Menu Images"></file-fire-drop-multi>
-            <paper-tooltip for="menus-input" offset="0">Upload up to 7 menu images</paper-tooltip>
-            <h3>Operating Hours</h3>
-            <div style="display:flex;flex-wrap:wrap;justify-content:center;">
-              <template is="dom-repeat" items="[[weekdays]]">
-                <div id$="hours-[[item.name]]" hidden$="[[item.disabled]]" style="display:flex;flex-direction:column;align-items:center;position:relative;">
-                  <h3>[[item.name]]</h3>
-                  <paper-icon-button icon="delete" day="[[item.name]]" on-tap="deleteDay" style="position:absolute;top:0;right:0"></paper-icon-button>
-                  <time-range-input style="flex-direction:column"
-                    start-time="{{item.startTime}}"
-                    end-time="{{item.endTime}}"
-                    name$="[[item.name]]"
-                  ></time-range-input>
-                </div>
-                <paper-tooltip for$="hours-[[item.name]]" offset="0">Specify opening and closing times for [[item.name]]</paper-tooltip>
-              </template>
             </div>
-            <paper-button on-tap="submitProfileChanges" disabled$="[[!filledOut]]" hidden$="[[!editing]]">Save</paper-button>
+            <div style="display:flex;flex-direction:column">
+              <file-fire-drop-multi id="banners-input" iter="[[bannerImages.length]]" uploaded-images="{{bannerImages}}" app-name="[[appName]]" prefix="[[retailer]]/banner" label="Banner Images"></file-fire-drop-multi>
+              <paper-tooltip for="banners-input" offset="0">Upload up to 7 banner images</paper-tooltip>
+              <file-fire-drop-multi id="menus-input" iter="[[bannerImages.length]]" uploaded-images="{{menuImages}}" app-name="[[appName]]" prefix="[[retailer]]/menu" label="Menu Images"></file-fire-drop-multi>
+              <paper-tooltip for="menus-input" offset="0">Upload up to 7 menu images</paper-tooltip>
+              <h3>Operating Hours</h3>
+              <div style="display:flex;flex-wrap:wrap;justify-content:center;">
+                <template is="dom-repeat" items="[[weekdays]]">
+                  <div id$="hours-[[item.name]]" hidden$="[[item.disabled]]" style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                    <h3>[[item.name]]</h3>
+                    <paper-icon-button icon="delete" day="[[item.name]]" on-tap="deleteDay" style="position:absolute;top:0;right:0"></paper-icon-button>
+                    <time-range-input style="flex-direction:column"
+                      start-time="{{item.startTime}}"
+                      end-time="{{item.endTime}}"
+                      name$="[[item.name]]"
+                    ></time-range-input>
+                  </div>
+                  <paper-tooltip for$="hours-[[item.name]]" offset="0">Specify opening and closing times for [[item.name]]</paper-tooltip>
+                </template>
+              </div>
+              <paper-button on-tap="submitProfileChanges" disabled$="[[!filledOut]]">Save</paper-button>
+            </div>
           </div>
-        </div>
+        </iron-pages>
+        
+        
       </div>
 
     </paper-card>
@@ -265,10 +283,6 @@
           appName: {
             type: String,
             reflectToAttribute: true
-          },
-          editing: {
-            type: Boolean,
-            value: () => false
           },
           computedLocation: {
             type: String,
@@ -309,13 +323,25 @@
           },
           data: {
             type: Object
+          },
+          route: {
+            type: Object
+          },
+          routeData: {
+            type: Object
+          },
+          emptyData: {
+            type: Boolean
           }
         }
       }
 
       static get observers() {
         return [
-          'searchObserver(fields.address, locationName)'
+          'searchObserver(fields.address, locationName)',
+          'routeObserver(routeData.mode)',
+          'profileObserver(data.*)',
+          'rootDataObserver(data)'
         ]
       }
       searchObserver(address, name) {
@@ -350,13 +376,12 @@
       }
 
       toggleEdit() {
-        this.editing = !this.editing;
+        this.set('route.path', this.routeData.mode == 'edit' ? '/view' : '/edit')
         // Google Maps needs to be visible on initialization
         // Removal of the hidden attribute on the editing page parent
         // may or may not complete before the google-map element starts
         // its attachedCallback
-        this.set('active', this.editing);
-        if(this.editing) {
+        if(this.routeData.mode == "edit") {
           this.wipeImageUploadList();
           this.prepopulateForm();
         }
@@ -364,6 +389,7 @@
       wipeImageUploadList() {
         
       }
+      
       prepopulateForm() {
         Object.keys(this.data).forEach((k) => {
           let elem = this.$['edit'].querySelector(`[name="${k}"]`);
@@ -435,16 +461,42 @@
           bubbles: true,
           composed: true
         }));
-        this.toggleEdit();
+      }
+      routeObserver(mode) {
+        if(mode == 'edit') {
+          this.shadowRoot.querySelector('google-map').resize();
+        }
       }
 
-      ready() {
-        super.ready();
-        console.log(this);
-        console.log(this.data)
-        if(Object.keys(this.data).length == 0) {
-          this.toggleEdit()
+      emptyObj(obj) {
+        if(!obj) {
+          return true
         }
+        if(Object.keys(obj).length == 0) {
+          return true
+        }
+        return false
+      }
+      profileObserver(newVal, oldVal) {
+        if(Object.keys(newVal.base).length != 0) {
+          this.set('emptyData', false)
+        } else {
+          this.set('emptyData', true)
+        }
+      }
+      rootDataObserver(data) {
+        console.log(data);
+        if(data && Object.keys(data).length > 0) {
+          this.set('emptyData', false)
+        } else {
+          this.set('emptyData', true)
+        }
+      }
+      ready() {
+        this.set('emptyData', true);
+        Polymer.RenderStatus.afterNextRender(this, function() { this.rootDataObserver(this.data) });
+        // console.log(this.data);
+        super.ready();
       }
     }
 
