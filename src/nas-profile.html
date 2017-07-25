@@ -437,6 +437,15 @@
         }));
         this.toggleEdit();
       }
+
+      ready() {
+        super.ready();
+        console.log(this);
+        console.log(this.data)
+        if(Object.keys(this.data).length == 0) {
+          this.toggleEdit()
+        }
+      }
     }
 
     window.customElements.define(NasProfile.is, NasProfile);

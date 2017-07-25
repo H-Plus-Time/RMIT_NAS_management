@@ -350,8 +350,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else if (this.page == 'profile' && !this.isRetailer) {
           // this.set('route.path', '/');
         } else {
-          if(this.page == "profile" && Object.keys(this.profileData) == 0) {
-            this.shadowRoot.querySelector('nas-profile').toggleEdit()
+          if(this.page == "profile" && Object.keys(this.profileData).length == 0) {
+            // this.shadowRoot.querySelector('nas-profile').toggleEdit()
           }
         }
 
