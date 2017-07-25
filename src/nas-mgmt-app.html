@@ -236,8 +236,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       constructor() {
         super();
         this.toastColors = {
-          info: '#323232',
-          warn: '#FEEFB3'
+          info: {background: '#323232', color:"white"},
+          warn: {background: '#D50000', color:"white"}
         }
       }
       static get properties() {
@@ -274,7 +274,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
-          'determineAdmin(signedIn, app, user)'
+          'determineAdmin(signedIn, app, user)',
+          'determineRetailer(signedIn, app, user)'
         ];
       }
 
@@ -286,7 +287,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _handleToastNotify(e) {
         console.log(e);
         let toast = this.shadowRoot.getElementById('notify');
-        toast.updateStyles({"--paper-toast-background-color": this.toastColors[e.detail.level]});
+        toast.updateStyles({
+          "--paper-toast-background-color": this.toastColors[e.detail.level].background,
+          "--paper-toast-color": this.toastColors[e.detail.level].color
+        });
         this.notifyMessage = e.detail.msg;
         toast.show({duration: e.detail.duration || 2000});
       }
@@ -295,17 +299,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.set('route.path', '/');
         }
       }
-      computeIsRetailer(signedIn, isAdmin) {
-        console.log(this.isAdmin);
-        if(isAdmin == undefined) {
+      computeIsRetailer(signedIn, isRetailer) {
+        console.log(this.isRetailer);
+        if(isRetailer == undefined) {
           return false;
         }
-        return signedIn && !isAdmin;
+        return signedIn && isRetailer;
       }
       computeAuthDirection(signedIn) {
         return signedIn ? 'out' : 'in';
       }
-
+      determineRetailer(signedIn, app, user) {
+        if(!signedIn || !user || !app) {
+          return;
+        }
+        let db = this.app.database();
+        db.ref(`invitees/${this.user.uid}`).set(true).then(success => {
+          this.isRetailer = true;
+        }).catch(err => {
+          this.isRetailer = false;
+          this.dispatchEvent(new CustomEvent('toast-notify',
+            {detail: {msg: `Please login with the email address where you received your invitation`, level: 'warn'}, bubbles: true}))
+        })
+      }
       determineAdmin(signedIn, app, user) {
         if(!signedIn || !user || !app) {
           return;
