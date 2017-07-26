@@ -453,10 +453,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           payload.banners[m].alt = `Banner No. ${m}`;
         }
         db.ref(`retailers/${this.user.uid}/profile`).update(payload);
+        // delete any derived properties, if not in the payload
+        ['building'].forEach(k => {
+          if(Object.keys(payload).indexOf(k) == -1) {
+            db.ref(`retailers/${this.user.uid}/profile/${k}`).remove();
+          }
+        })
         db.ref(`retailers/${this.user.uid}/status`).set('active');
         db.ref(`retailers/${this.user.uid}/email`).set(this.user.email);
         console.log('setting to profile/view')
-        this.set('route.path', '/profile/view')
+        // this.set('route.path', '/profile/view')
         console.log(this.route.path)
       }
     }

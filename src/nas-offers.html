@@ -146,7 +146,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           currentDateTime: {
             type: String,
-            computed: 'computeMin(now)'
           }
         }
       }
@@ -159,9 +158,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return  a.start_time < b.start_time;
       }
       
-      computeMin(now) {
-        return fecha.format(new Date(now*1000), "YYYY-MM-DD\THH:mm")
-      }
 
       openDialog() {
         let dialog = this.shadowRoot.querySelector('paper-dialog');
@@ -172,6 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // set some reasonable defaults
         let now_basic = new Date();
         let now = fecha.format(now_basic, 'YYYY-MM-DDTHH:mm')
+        this.set('currentDateTime', now);
         let plus_one_day = new Date(now_basic.getTime() + 24*1000*3600);
         let pod_fmt = fecha.format(plus_one_day, 'YYYY-MM-DDTHH:mm');
         dialog.querySelector('div paper-input[name="start_time"]').value = now;
@@ -190,7 +187,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           {
             detail: this.fields, 
             bubbles: true
-          }))
+          })
+        )
+        this.set('image', undefined)
+        this.shadowRoot.querySelector('file-fire-drop').updateStyles({"--file-fire-dropzone-background-image": `url(http://i.imgur.com/ndcWzqn.png)`});
       }
 
       ready() {

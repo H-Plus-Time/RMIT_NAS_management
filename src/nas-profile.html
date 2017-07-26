@@ -382,7 +382,10 @@
       }
 
       toggleEdit() {
-        this.set('route.path', this.routeData.mode == 'edit' ? '/view' : '/edit')
+        console.log(this.routeData.mode)
+        console.log(this.route.path)
+        // weird behaviour here
+        this.set('routeData.mode', this.routeData.mode == 'edit' ? 'view' : 'edit')
         // Google Maps needs to be visible on initialization
         // Removal of the hidden attribute on the editing page parent
         // may or may not complete before the google-map element starts
@@ -467,6 +470,7 @@
           bubbles: true,
           composed: true
         }));
+        this.set('routeData.mode', 'view')
       }
       routeObserver(mode) {
         if(mode == 'edit') {
