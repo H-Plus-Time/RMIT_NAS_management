@@ -301,6 +301,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       computeIsRetailer(signedIn, isRetailer) {
         console.log(this.isRetailer);
+        return true
         if(isRetailer == undefined) {
           return false;
         }
@@ -310,9 +311,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return signedIn ? 'out' : 'in';
       }
       determineRetailer(signedIn, app, user) {
+        
         if(!signedIn || !user || !app) {
           return;
         }
+        this.isRetailer = true
+        return
         let db = this.app.database();
         db.ref(`invitees/${this.user.uid}`).set(true).then(success => {
           this.isRetailer = true;
