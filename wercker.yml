@@ -33,5 +33,5 @@ deploy:
         name: firebase deploy
         code: |
           apk add --no-cache make gcc g++ python
-          npm install -g firebase-tools
+          npm install firebase-tools
           firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"
