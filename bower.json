@@ -73,6 +73,7 @@
     "iron-selector": "1 - 2",
     "iron-resizable-behavior": "1 - 2",
     "firebase": "^4.1.1",
-    "reverse-element": "^0.0.6"
+    "reverse-element": "^0.0.6",
+    "google-apis": "2.0-preview"
   }
 }
