@@ -1,5 +1,5 @@
 box:
-  id: mhart/alpine-node:latest
+  id: mhart/alpine-node:6
   cmd: /bin/sh
 build:
   steps:
@@ -32,5 +32,5 @@ deploy:
     - script:
         name: firebase deploy
         code: |
-          yarn global add firebase-tools --unsafe-perm
+          yarn global add firebase-tools
           firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"
