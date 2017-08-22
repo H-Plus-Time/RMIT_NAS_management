@@ -36,22 +36,15 @@
                 super.ready();
                 let parentElement = this.parentNode;
                 Polymer.RenderStatus.afterNextRender(this, function() {
-                    console.log("in renderstatus")
-                    console.log(this);
                     if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.register('/service-worker.js').then(function (registration) {
                             registration.onupdatefound = function () {
-                                console.log("suff2")
                                 var installingWorker = registration.installing;
-                                console.log(this);
                                 installingWorker.onstatechange = function () {
-                                    console.log("suff3")
-                                    console.log(this);
                                     switch (installingWorker.state) {
                                         case 'installed':
                                             if (navigator.serviceWorker.controller) {
                                                 console.log('New version available');
-                                                console.log(this);
                                                 parentElement.dispatchEvent(new CustomEvent('toast-notify', {detail: {
                                                     message: 'New version available',
                                                     buttonText: 'Reload to update',
