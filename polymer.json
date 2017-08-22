@@ -25,7 +25,7 @@
   },
   "builds": [{
     "name": "default",
-    "service-worker": true,
+    "addServiceWorker": true,
     "bundle": true,
     "js": {"minify": false},
     "css": {"minify": true},
@@ -33,7 +33,7 @@
   },
   {
     "name": "unbundled",
-    "service-worker": true,
+    "addServiceWorker": true,
     "bundle": false,
     "js": {"minify": false},
     "css": {"minify": true},

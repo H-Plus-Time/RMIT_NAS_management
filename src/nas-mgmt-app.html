@@ -35,6 +35,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 <link rel="import" href="nas-icons.html">
 <link rel="import" href="helper-import.html">
+<link rel="import" href="lazy-block.html">
 
 <dom-module id="nas-mgmt-app">
   <template>
@@ -228,6 +229,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
+    <lazy-block></lazy-block>
   </template>
   <script>
     class NasMgmtApp extends Polymer.Element {
@@ -236,6 +238,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       constructor() {
         super();
         this.toastColors = {
+          undefined: {background: '#424242', color: 'white'},
           info: {background: '#323232', color:"white"},
           warn: {background: '#D50000', color:"white"}
         }
@@ -287,11 +290,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _handleToastNotify(e) {
         console.log(e);
         let toast = this.shadowRoot.getElementById('notify');
+        if(e.detail.buttonText) {
+          let button = document.createElement('paper-button');
+          button.innerText = e.detail.buttonText;
+          button.style.background = '#e60028';
+          button.style.color = 'white';
+          button.style.fontWeight = '900';
+          this.notifyMessage = e.detail.msg ? e.detail.msg : e.detail.message;
+          button.addEventListener('click', e.detail.buttonTapHandler)
+          toast.appendChild(button);
+          toast.show({duration: 0})
+        }
         toast.updateStyles({
           "--paper-toast-background-color": this.toastColors[e.detail.level].background,
           "--paper-toast-color": this.toastColors[e.detail.level].color
         });
-        this.notifyMessage = e.detail.msg;
+        this.notifyMessage = e.detail.msg ? e.detail.msg :  e.detail.message;
         toast.show({duration: e.detail.duration || 2000});
       }
       runOnChangeAuth(signedIn) {
