@@ -120,6 +120,10 @@
       .edit-form > * {
         display:inline-block;
       }
+      .qrcode {
+        width:200px;
+        height:200px;
+      }
     </style>
     <app-route
       route="{{route}}"
@@ -135,39 +139,46 @@
           <div name="view" class="layout vertical">
             <div hidden$="[[emptyData]]">
               <div class="layout horizontal">
-                <iron-image src="[[data.logo]]" class="logo"
+                <iron-image src="[[data.profile.logo]]" class="logo"
                   sizing="contain" style="background:light-grey">
                 </iron-image>
                 <div class="basics">
                   <div>
-                    <h3 style="display:inline-block;">[[data.name]]</h3>,<i>[[computedLocation]]</i>
+                    <h3 style="display:inline-block;">[[data.profile.name]]</h3>,<i>[[computedLocation]]</i>
                     <br>
                     <iron-icon icon="av:web"></iron-icon>
-                    <a hidden$="[[!data.website]]" href$="[[data.website]]">
-                        [[data.website]]
+                    <a hidden$="[[!data.profile.website]]" href$="[[data.profile.website]]">
+                        [[data.profile.website]]
                     </a>
-                    <div>[[data.tagline]]</div>
-                    <p><i>Detail: </i>[[data.detail]]</p>
+                    <div>[[data.profile.tagline]]</div>
+                    <p><i>Detail: </i>[[data.profile.detail]]</p>
                   </div>
                 </div>
               </div>
               <h3>Operating Hours</h3>
               <div class="times-output">
-                <multi-time-range-output times="[[data.operating_hours]]"></multi-time-range-output>
+                <multi-time-range-output times="[[data.profile.operating_hours]]"></multi-time-range-output>
               </div>
-              <div hidden$="[[!data.banners]]">
+              <div hidden$="[[!data.profile.banners]]">
                 <h3>Banner Images</h3>
-                <template id="menus" is="dom-repeat" items="[[data.banners]]">
+                <template id="menus" is="dom-repeat" items="[[data.profile.banners]]">
                   <iron-image class="banner" sizing="contain" preload
                     src="[[item.src]]" alt="[[item.alt]]"></iron-image>
                 </template>
               </div>
-              <div hidden$="[[!data.menus]]">
+              <div hidden$="[[!data.profile.menus]]">
                 <h3>Menu Images</h3>
-                <template id="banners" is="dom-repeat" items="[[data.menus]]">
+                <template id="banners" is="dom-repeat" items="[[data.profile.menus]]">
                   <iron-image class="menu" sizing="contain" preload
                     src="[[item.src]]" alt="[[item.alt]]"></iron-image>
                 </template>
+              </div>
+              <div hidden$="[[!data.url]]">
+                <h3>Profile link and QR code</h3>
+                <div class="vertical layout">
+                  <a href="[[data.url]]">[[data.url]]</a>
+                  <img class="qrcode" src="[[data.qrcode]]" alt="[[data.url]]"/>
+                </div>
               </div>
             </div>
             <div hidden$="[[!emptyData]]" class="emptyData">
@@ -292,11 +303,11 @@
           },
           computedLocation: {
             type: String,
-            computed: 'computeLocation(data.level, data.address)'
+            computed: 'computeLocation(data.profile.level, data.profile.address)'
           },
           profileHeading: {
             type: String,
-            computed: 'computeHeading(data.name)'
+            computed: 'computeHeading(data.profile.name)'
           },
           fields: {
             type: Object,
@@ -346,7 +357,7 @@
         return [
           'searchObserver(fields.address, locationName)',
           'routeObserver(routeData.mode)',
-          'profileObserver(data.*)',
+          'profileObserver(data.profile.*)',
           'rootDataObserver(data)'
         ]
       }
@@ -406,7 +417,7 @@
           if(["latitude", "longitude", "address"].indexOf(k) != -1) {
             this.set(`fields.${k}`, this.data[k]);
             // reflect to paper-input-location query
-            this.locationQuery = this.data.address;
+            this.locationQuery = this.data.profile.address;
           }
           if(k == 'menus') {
             this.set('menuImages', this.data[k]);

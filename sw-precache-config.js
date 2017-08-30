@@ -21,4 +21,5 @@ module.exports = {
     handler: 'fastest'
   }],
   navigateFallback: 'index.html',
+  navigateFallbackWhitelist: [/^(?!\/__).*/]
 };
