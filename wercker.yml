@@ -1,12 +1,12 @@
 box:
-  id: mhart/alpine-node:latest
+  id: mhart/alpine-node:6
   cmd: /bin/sh
 build:
   steps:
     - script:
         name: install yarn
         code: |
-          apk --no-cache add git && npm install -g yarn
+          apk --no-cache add git make gcc g++ python && npm install -g yarn
     - script:
         name: set yarn cache
         code: |
@@ -32,6 +32,6 @@ deploy:
     - script:
         name: firebase deploy
         code: |
-          apk add --no-cache make gcc g++ python
-          npm install firebase-tools
+          npm install -g yarn
+          yarn global add firebase-tools || true
           firebase deploy --project=nas-app --token "$FIREBASE_TOKEN"

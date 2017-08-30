@@ -15,6 +15,7 @@
   "dependencies": {
     "date-fns": "^1.28.4",
     "global": "^4.3.2",
+    "node-zopfli": "^2.0.2",
     "polymer-cli": "^1.1.0"
   }
 }

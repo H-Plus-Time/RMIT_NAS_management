@@ -1,0 +1,75 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<!--
+`<lazy>` is Description
+
+@element lazy
+-->
+<dom-module id="lazy-block">
+    <template>
+        <style>
+            :host {
+                display: block
+            }
+        </style>
+
+        
+
+    </template>
+
+    <script>
+        class LazyBlock extends Polymer.Element {
+
+            static get is() { return 'lazy-block'; }
+
+            static get properties() {
+                return {
+                    
+                };
+            }
+
+            constructor() {
+                super();
+            }
+
+            ready() {
+                super.ready();
+                let parentElement = this.parentNode;
+                Polymer.RenderStatus.afterNextRender(this, function() {
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('/service-worker.js').then(function (registration) {
+                            registration.onupdatefound = function () {
+                                var installingWorker = registration.installing;
+                                installingWorker.onstatechange = function () {
+                                    switch (installingWorker.state) {
+                                        case 'installed':
+                                            if (navigator.serviceWorker.controller) {
+                                                console.log('New version available');
+                                                parentElement.dispatchEvent(new CustomEvent('toast-notify', {detail: {
+                                                    message: 'New version available',
+                                                    buttonText: 'Reload to update',
+                                                    buttonTapHandler: function () {
+                                                        window.location.reload();
+                                                    },
+                                                    duration: 0,
+                                                }, composed: true, bubbles: true}));
+                                            }
+                                            break;
+                                        case 'redundant':
+                                            console.error('The installing service worker became redundant.');
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            };
+                        });
+                    }
+                });
+            }
+
+        }
+
+        window.customElements.define(LazyBlock.is, LazyBlock);
+    </script>
+</dom-module>
