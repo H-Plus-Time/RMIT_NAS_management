@@ -24,7 +24,7 @@
     "paper-tooltip": "1 - 2",
     "paper-tabs": "1 - 2",
     "iron-icons": "1 - 2",
-    "login-fire": "convoo/login-fire#v2",
+    "login-fire": "convoo/login-fire#93fa24a",
     "file-fire": "H-Plus-Time/file-fire#2.0-preview",
     "date-fns": "^1.28.4",
     "iron-form": "2.0-preview",
